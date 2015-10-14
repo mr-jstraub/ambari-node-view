@@ -1,0 +1,73 @@
+<div class="row">
+    <div class="col-xs-12">
+        <h1>New Cluster</h1>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <textarea class="form-control" ng-model="nodeCtrl.newClusterInput" rows="5"></textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-default" ng-click="nodeCtrl.importNewCluster()">Go</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="row" ng-show="{{nodeCtrl.mainCluster.config.length}}">
+    <div class="col-xs-12">
+        <h1>{{nodeCtrl.mainCluster.name}}</h1>
+    </div>
+    <div class="col-xs-12" ng-repeat="config in nodeCtrl.mainCluster.config | orderBy:'id'">
+        <h2>{{config.id}}</h1>
+        <p>
+            <i>{{config.tag}}</i>
+        </p>
+        <table class="table table-striped tbl-config">
+            <tbody>
+                <tr ng-repeat="item in config.items | orderBy: 'id'" class="{{nodeCtrl.getClassByStatus(item.status)}}">
+                    <td>{{item.id}}</td>
+                    <td>{{item.val}}</td>
+                    <td>{{nodeCtrl.getDiffVal(config.id,item.id)}}</td>
+                </tr>
+            </tbody>
+            <thead>
+                <tr>
+                    <th>Config</th>
+                    <th>Value</th>
+                    <th>New Value</th>
+                </tr>
+            </thead>
+        </table>
+
+    </div>
+</div>
+
+<hr />
+
+<!--
+<div class="row">
+    <div class="col-xs-12">
+        <h1>{{nodeCtrl.diffCluster.name}}</h1>
+    </div>
+    <div class="col-xs-12" ng-repeat="config in nodeCtrl.diffCluster.config | orderBy:'id'">
+        <h1>{{config.id}}</h1>
+        <p>
+            <i>{{config.tag}}</i>
+        </p>
+        <table class="table table-striped">
+            <tbody>
+                <tr ng-repeat="item in config.items | orderBy: 'id'" class="{{nodeCtrl.getClassByStatus(item.status)}}">
+                    <td>{{item.status}} ::: {{item.id}}</td>
+                    <td>{{item.val}}</td>
+                </tr>
+            </tbody>
+            <thead>
+                <tr>
+                    <th>Config</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+-->

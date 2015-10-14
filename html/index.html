@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html ng-app="nodeviewApp">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Cluster - Node View</title>
+    <link rel="stylesheet" href="../css/bootstrap.css" type="text/css" />
+    <link rel="stylesheet" href="../css/style.css" type="text/css" />
+    
+    <script type="text/javascript">
+        (function(){
+        })();
+    </script>
+    <script type="text/javascript" src="../js/angular.js"></script>
+    <script type="text/javascript" src="../js/angular-route.js"></script>
+    <script type="text/javascript" src="../js/app.js"></script>
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../js/bootstrap.js"></script>
+</head>
+<body ng-controller="MainController as main">
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#/">Node View</a>
+        </div>
+
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li><a href="#/">Cluster</a></li>
+            <li><a href="#/legend">Legend</a></li>
+            <!--<li><a href="#/configuration">Configuration</a></li>-->
+            <li class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#/settings/services">Services</a></li>
+                <li><a href="#/settings/components">Components</a></li>
+                <li><a href="#/settings/importexport">Import/Export</a></li>
+              </ul>
+            </li>
+            <li><a href="#/about">About</a></li>
+          </ul>
+          <!--
+          TODO: add filter
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Filter" ng-model="clusterFilter">
+            </div>
+          </form>
+          -->
+          <ul class="nav navbar-nav navbar-right" ng-show="$location.path()=='/'">
+            <li><p class="navbar-text"><strong>View:&nbsp;</strong></p></li>
+            <li><button class="btn btn-default navbar-btn" href="#cluster-services-view" data-toggle="tab">Service</button></li>
+            <li><button class="btn btn-default navbar-btn" href="#cluster-comp-view" data-toggle="tab">Component</button></li>
+            <li><button class="btn btn-default navbar-btn" href="#cluster-list-view" data-toggle="tab">List</button></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+
+    <!-- main content -->
+    <div class="container">
+
+        <div class="clearfix"></div>
+        <div ng-view></div>
+        <div class="clearfix"></div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!-- edit component -->
+<div class="row tab-content">
+    <div class="col-sm-6 col-xs-12 tab-pane active fade in" id="tab-tbl-comps">
+        <h3>Settings</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>Service</td>
+                    <td>Name</td>
+                    <td>Short</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </thead>
+            <tbody >
+                <tr ng-repeat="comp in comps">
+                    <td>{{comp.service.name}}</td>
+                    <td>{{comp.name}}</td>
+                    <td>{{comp.shortname}}</td>
+                    <td><a ng-click="editComp(comp.id)" href="settings/components#tab-form-comp-edit" data-toggle="tab">Edit</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- component edit form -->
+    <div class="col-sm-6 col-xs-12 tab-pane fade" id="tab-form-comp-edit">
+        <h3>Edit Component</h3>
+        <form class="form-horizontal">
+            <div class="form-group">
+                <label>Service</label>
+                <input type="text" name="name" class="form-control" disabled="disabled" ng-model="editCompObj.service.name" />
+            </div>
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" name="name" class="form-control" ng-model="editCompObj.name" required />
+            </div>
+            <div class="form-group">
+                <label>Shortname</label>
+                <input type="text" name="shortname" class="form-control" ng-model="editCompObj.shortname" required maxlength="7" />
+            </div>
+            <div class="form-group">
+                <button class="btn btn-default"><a href="settings/components#tab-tbl-comps" data-toggle="tab">Done</a></button>
+            </div>
+
+        </form>
+    </div>
+</div>

@@ -1,0 +1,95 @@
+body {
+    margin-bottom:60px;
+}
+
+.node-wrapper {
+    background-color:white;
+    padding:10px;
+    margin:5px;
+    float:left;
+    border:1px solid #ccc;
+}
+
+.node-wrapper.multi-cardinality {
+    border:3px dotted #eee;
+}
+.node-wrapper .name span {
+    color: black;
+}
+.node-wrapper .name {
+    text-align: center;
+}
+.node-wrapper .name .cardinality {
+    float:right;
+}
+.node-wrapper .name .cardinality span {
+    font-weight: bold;
+    font-style: italic;
+}
+.node-box-wrapper {
+    background-color:#eee;
+    width:50px;
+    height:50px;
+    margin:5px;
+    float:left;
+}
+
+.node-box-wrapper .legend-desc {
+    position: absolute;
+    top: 25%;
+    left: 80px;
+}
+.node-box-wrapper.empty{
+    background-color: transparent;
+}
+.node-box-content {
+    background-color: transparent;
+    color: black;
+    width:100%;
+    height:100%;
+    text-align:center;
+    vertical-align: middle;
+}
+
+.node-box-content span {
+    /*color: black;   =>>> REMOVE from NODE BOX CONTENT*/
+    font-weight: bold;
+    font-size: 0.75em;
+    height: 100%;
+    display: block;
+    text-align: center;
+    padding-top: 25%;
+}
+.service-box-color-preview {
+    display: block;
+    width: 10px;
+    height: 10px;
+    line-height: 1;
+    border: 1px solid #ccc;
+}
+
+.navbar .navbar-btn {
+    margin-left:5px;
+}
+
+.form-horizontal .form-group {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+
+.tbl-list-view {
+    width:auto!important;
+}
+.tbl-list-view td span {
+    display:block;
+}
+
+.tbl-config td {
+    word-break: break-word;
+    word-wrap: break-word;
+}
+
+.tbl-config td:first-child {
+    width:35%;
+}
+
