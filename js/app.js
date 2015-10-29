@@ -406,7 +406,7 @@ app.factory('Node', ['Component', function(Component){
         /* {string} Unique id of this node */
         this.id = nodeId;
         /* {string} FQDN of the node */
-        this.url = url;
+        this.url = (url) ? url : '';
         /* {string} Name of the node */
         this.name = name;
         /* {Component[]} Collection of node components */

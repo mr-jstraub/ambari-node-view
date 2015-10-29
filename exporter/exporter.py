@@ -16,6 +16,7 @@ class ClusterExporter:
         self.host = host
         self.cluster_name = cluster_name
         self.cluster_url = ''
+        self.api_url = ''
         self.user = user
         self.pw = pw
         self.session = None
@@ -24,8 +25,10 @@ class ClusterExporter:
         # create cluster url
         if use_https:
             self.cluster_url = '/'.join(['https:/', host + '', 'api', 'v1', 'clusters', cluster_name])
+            self.api_url = '/'.join(['https:/', host + '', 'api', 'v1'])
         else:
             self.cluster_url = '/'.join(['http:/', host + '', 'api', 'v1', 'clusters', cluster_name])
+            self.api_url = '/'.join(['http:/', host + '', 'api', 'v1'])
 
         # create ambari session
         logging.debug('Trying to setup new Ambari session with ' + self.cluster_url)
@@ -118,6 +121,52 @@ class ClusterExporter:
 
         return final
 
+    def _retrieve_ambari_info(self, cluster):
+        '''
+        No support to load info from file
+        '''
+        logging.debug('trying to get ambari server and agent info')
+        # Check whether ambari is deployed and reachable
+        resp = self.session.get(self.api_url + '/services/AMBARI', verify=False)
+        if resp.status_code != 200:
+            logging.debug('no ambari service found')
+            return
+
+        # process components
+        result = resp.json()
+        if 'components' not in result:
+            logging.debug('seems like ambari service has no components')
+            return 
+
+        for comp in result['components']:
+            # retrieve component information
+            host_comps_resp = self.session.get(comp['href'], verify=False)
+
+            # make sure response is valid
+            if host_comps_resp.status_code != 200:
+                continue
+            host_comps = host_comps_resp.json()
+            if "hostComponents" not in host_comps:
+                continue
+
+            for host_comp in host_comps['hostComponents']:
+                if 'RootServiceHostComponents' not in host_comp:
+                    continue
+                host_name = host_comp['RootServiceHostComponents']['host_name']
+                host_comp_name = host_comp['RootServiceHostComponents']['component_name']
+                self._add_component_to_host(cluster, host_name, host_comp_name)
+
+
+    def _add_component_to_host(self, cluster, ambari_host, component):
+        '''
+        Mainly used to add ambari components to specifici hosts.
+        '''
+        for host in cluster['hosts_info']:
+            if host['host_name'] != ambari_host:
+                continue
+            host['components'] += [component]
+            break
+        return
 
     def _retrieve_cluster_config(self):
         '''
@@ -211,6 +260,8 @@ class ClusterExporter:
             # get components/services info
             cluster['hosts_info'] = self._retrieve_host_info(cluster['hosts'])
 
+            # get ambari info
+            self._retrieve_ambari_info(cluster)
             # get config
             #cluster['config'] = self._retrieve_cluster_config()
 
