@@ -1,65 +1,15 @@
 body {
-    margin-bottom:60px;
+    max-width: 100%;
+    overflow-x: hidden;
+    background: #FFF;
+    color: #676767;
+    position: relative;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    padding-bottom:15px;
 }
 
-.node-wrapper {
-    background-color:white;
-    padding:10px;
-    margin:5px;
-    float:left;
-    border:1px solid #ccc;
-}
-
-.node-wrapper.multi-cardinality {
-    border:3px dotted #eee;
-}
-.node-wrapper .name span {
-    color: black;
-}
-.node-wrapper .name {
-    text-align: center;
-}
-.node-wrapper .name .cardinality {
-    float:right;
-}
-.node-wrapper .name .cardinality span {
-    font-weight: bold;
-    font-style: italic;
-}
-.node-box-wrapper {
-    background-color:#eee;
-    width:50px;
-    height:50px;
-    margin:5px;
-    float:left;
-}
-
-.node-box-wrapper .legend-desc {
-    position: absolute;
-    top: 25%;
-    left: 80px;
-}
-.node-box-wrapper.empty{
-    background-color: transparent;
-}
-.node-box-content {
-    background-color: transparent;
-    color: black;
-    width:100%;
-    height:100%;
-    text-align:center;
-    vertical-align: middle;
-}
-
-.node-box-content span {
-    /*color: black;   =>>> REMOVE from NODE BOX CONTENT*/
-    font-weight: bold;
-    font-size: 0.75em;
-    height: 100%;
-    display: block;
-    text-align: center;
-    padding-top: 25%;
-}
 .service-box-color-preview {
     display: block;
     width: 10px;
@@ -92,3 +42,132 @@ body {
 .tbl-config td:first-child {
     width:35%;
 }
+
+
+/* Node box */
+.box {
+  margin-bottom: 6px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+          box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+.box-main {
+  padding: 5px;
+  min-height:68px;
+}
+.box-header,
+.box-footer {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+  color: #333;
+  background-color: #f5f5f5;
+}
+.box-title {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 16px;
+  color: inherit;
+}
+.box-title > a,
+.box-title > small,
+.box-title > .small,
+.box-title > small > a,
+.box-title > .small > a {
+  color: inherit;
+}
+.box-footer {
+  padding: 10px 15px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+}
+
+/* component/service box */
+.cbox {
+    display: table;
+    background-color:#eee;
+    width:50px;
+    height:50px;
+    margin:4px;
+    padding: 1px;
+    overflow:hidden;
+    float:left;
+    color: black;
+    word-break: break-word;
+}
+
+.cbox span {
+    font-weight: bold;
+    font-size: 0.75em;
+    height: 100%;
+    text-align: center;
+    line-height:1;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+/*Misc.*/
+.legend > span {
+    position: absolute;
+    top: 30%;
+    left: 80px;
+}
+
+.box-main:before,
+.box-main:after,
+.full-container:before,
+.full-container:after {
+  display: table;
+  content: " ";
+}
+
+.box-main:after,
+.full-container:after {
+  clear: both;
+}
+
+/*spans complete height and width*/
+.full-container {
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.full-container > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/*Cluster Build*/
+.toolbar {
+    min-height:60px;
+}
+.toolbar .trash {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 6px 18px;
+}
+
+.toolbar .trash span {
+    font-weight:bold;
+}
+
+.toolbar .trash span.glyphicon {
+    margin-right: 6px;
+}
+
+.build-settings {
+    border-right:1px solid #ccc;
+    background-color: #f5f5f5;
+    padding-bottom: 15px;
+}
+
+.dndPlaceholder {
+    display:none;
+}
+
+
+

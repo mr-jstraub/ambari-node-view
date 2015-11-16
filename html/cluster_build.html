@@ -1,0 +1,73 @@
+
+<div class="full-container">
+    <div class="row">
+        <div class="col-xs-3 build-settings">
+            <h3>Elements</h3>
+            <div class="tab-content">
+                <div class="tab-pane active" id="tab-clusterbuild-services">
+                    <div class="toolbar">
+                        <button class="btn btn-primary" ng-click="addNode()"><span class="glyphicon glyphicon-plus"></span>&nbsp;Node</button>
+                        <div class="trash pull-right" dnd-list="[]">
+                            <span class="glyphicon glyphicon-trash"></span><span>Trash</span>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="cbox" 
+                            ng-repeat="service in services | orderBy:'name'" 
+                            style="background-color: {{service.baseColor}}; color: {{service.fontColor}}" 
+                            title="{{service.name}}">
+                        <span ng-click="selectComps(service)" ng-href="blueprint#tab-clusterbuild-comps" data-toggle="tab">{{service.name}}</span>
+                    </div>
+                </div>
+                <div class="tab-pane slide" id="tab-clusterbuild-comps">
+                    <div class="toolbar">
+                        <button class="btn btn-primary" ng-href="blueprint#tab-clusterbuild-services" data-toggle="tab"><span class="glyphicon glyphicon-chevron-left"></span>Back</button>
+                        <div class="trash pull-right" dnd-list="[]">
+                            <span class="glyphicon glyphicon-trash"></span><span>Trash</span>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                    <div class="cbox"
+                            ng-model="buildcomps" 
+                            ng-repeat="comp in buildcomps"
+                            dnd-draggable="comp"
+                            dnd-effect-allowed="copy"
+                            style="background-color: {{comp.baseColor}}; color: {{comp.fontColor}}" 
+                            title="{{comp.name}}">
+                        <span>{{comp.name}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-9">
+            <h3>Cluster</h3>
+            <div class="row" dnd-list="[]">
+                <div ng-class="config.cols" ng-repeat="node in buildnodes">
+                    <div class="box" 
+                            dnd-list="node.comps" 
+                            dnd-drop="isUnique(event, item, node)">
+                        <div class="box-header">
+                            <a href="#" editable-text="node.name" e-required>{{ node.name || defHostname }}</a>
+                            <a href="#" editable-number="node.cardinality" onbeforesave="checkCardinality($data, node.cardinality)">(#{{ node.cardinality || 1 }})</a>
+                            <button type="button" class="btn btn-primary btn-xs pull-right" ng-click="removeNode($index)">
+                                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                        <div class="box-main">
+                            <div class="cbox" 
+                                    ng-repeat="comp in node.comps track by $index"
+                                    dnd-draggable="comp"
+                                    dnd-moved="node.comps.splice($index, 1)"
+                                    dnd-effect-allowed="move"
+                                    style="background-color: {{comp.baseColor}}; color: {{comp.fontColor}}">
+                                <span>{{comp.name}}</span>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+

@@ -1,11 +1,13 @@
-<div class="row">
-    <h1>Legend</h1>
-    <div class="col-xs-6 col-sm-3" ng-repeat="comp in comps = comps| orderBy:'service.group_a'">
-        <div class="node-box-wrapper">
-            <div class="node-box-content" style="background-color: {{comp.service.baseColor}}; color: {{comp.service.fontColor}}" title="{{comp.name}}">
-                <span>{{comp.shortname}}</span>
-            </div>
-            <span class="legend-desc">{{comp.name}}</span>
-        </div>
-    </div>
+<div class="container">
+	<div class="row">
+	    <h1>Legend</h1>
+	    <div class="col-xs-6 col-sm-3 legend" ng-repeat="comp in comps = comps| orderBy:'service.group_a'">
+	        <div class="cbox"
+	        		style="background-color: {{comp.service.baseColor}}; color: {{comp.service.fontColor}}" 
+	        		title="{{comp.name}}">
+	            <span>{{comp.shortname}}</span>
+	        </div>
+	        <span>{{comp.name}}</span>
+	    </div>
+	</div>
 </div>

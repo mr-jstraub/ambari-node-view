@@ -5,16 +5,19 @@
     <title>Cluster - Node View</title>
     <link rel="stylesheet" href="../css/bootstrap.css" type="text/css" />
     <link rel="stylesheet" href="../css/style.css" type="text/css" />
+    <link rel="stylesheet" href="../css/xeditable.css">
     
     <script type="text/javascript">
         (function(){
         })();
     </script>
-    <script type="text/javascript" src="../js/angular.js"></script>
-    <script type="text/javascript" src="../js/angular-route.js"></script>
-    <script type="text/javascript" src="../js/app.js"></script>
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script type="text/javascript" src="../js/bootstrap.js"></script>
+    <script type="text/javascript" src="../js/angular.js"></script>
+    <script type="text/javascript" src="../js/angular-route.js"></script>
+    <script type="text/javascript" src="../js/angular-dragdrop.js"></script>
+    <script type="text/javascript" src="../js/xeditable.js"></script>
+    <script type="text/javascript" src="../js/app.js"></script>
 </head>
 <body ng-controller="MainController as main">
 
@@ -34,6 +37,7 @@
           <ul class="nav navbar-nav">
             <li><a href="#/">Cluster</a></li>
             <li><a href="#/legend">Legend</a></li>
+            <li><a href="#/build">Build</a></li>
             <!--<li><a href="#/configuration">Configuration</a></li>-->
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
@@ -65,13 +69,8 @@
 
 
     <!-- main content -->
-    <div class="container">
-
-        <div class="clearfix"></div>
-        <div ng-view></div>
-        <div class="clearfix"></div>
-
-    </div>
-
+    <div class="clearfix"></div>
+    <div ng-view></div>
+    <div class="clearfix"></div>
 </body>
 </html>

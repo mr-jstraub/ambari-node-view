@@ -1,71 +1,71 @@
-<div class="row tab-content">
-    <div class="col-sm-6 col-xs-12 tab-pane active fade in" id="tab-tbl-services">
-        <h3>Settings</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <td>Name</td>
-                    <td>Short</td>
-                    <td>Font</td>
-                    <td>Base</td>
-                    <td>&nbsp;</td>
-                </tr>
-            </thead>
-            <tbody >
-                <tr ng-repeat="service in services">
-                    <td>{{service.name}}</td>
-                    <td>{{service.shortname}}</td>
-                    <td><span ng-show="{{service.fontColor.length}}" class="service-box-color-preview" style="background-color:{{service.fontColor}}"></span></td>
-                    <td><span ng-show="{{service.baseColor.length}}" class="service-box-color-preview" style="background-color:{{service.baseColor}}"></span></td>
-                    <td><a ng-click="editService(service.id)" ng-href="settings/services#tab-form-service-edit" data-toggle="tab">Edit</a></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Service edit form -->
-    <div id="tab-form-service-edit" class="tab-pane fade">
-        <div class="col-sm-6 col-xs-12">
-            <h3>Edit Service</h3>
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" name="name" class="form-control" ng-model="editServiceObj.name" required />
-                </div>
-                <div class="form-group">
-                    <label>Shortname</label>
-                    <input type="text" name="shortname" class="form-control" ng-model="editServiceObj.shortname" required maxlength="7" />
-                </div>
-                <div class="form-group">
-                    <label>Font Color</label>
-                    <input type="text" name="font_color" class="form-control" ng-model="editServiceObj.fontColor" />
-                </div>
-                <div class="form-group">
-                    <label>Base Color</label>
-                    <input type="text" name="base_color" class="form-control" ng-model="editServiceObj.baseColor" />
-                </div>
-                <div class="form-group">
-                    <label>Group A</label>
-                    <input type="text" name="group_a" class="form-control" ng-model="editServiceObj.group_a" />
-                </div>
-                <div class="form-group">
-                    <label>Group B</label>
-                    <input type="text" name="group_b" class="form-control" ng-model="editServiceObj.group_b" />
-                </div>
-                <div class="form-group">
-                    <label>Group C</label>
-                    <input type="text" name="group_c" class="form-control" ng-model="editServiceObj.group_c" />
-                </div>
-                <div class="form-group">
-                    <button class="btn btn-default"><a href="settings/services#tab-tbl-services" data-toggle="tab">Done</a></button>
-                </div>
-            </form>
+<div class="container">   
+    <div class="row tab-content">
+        <div class="col-sm-6 col-xs-12 tab-pane active fade in" id="tab-tbl-services">
+            <h1>Service-Settings</h1>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Short</td>
+                        <td>Font</td>
+                        <td>Base</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                </thead>
+                <tbody >
+                    <tr ng-repeat="service in services">
+                        <td>{{service.name}}</td>
+                        <td>{{service.shortname}}</td>
+                        <td><span ng-show="{{service.fontColor.length}}" class="service-box-color-preview" style="background-color:{{service.fontColor}}"></span></td>
+                        <td><span ng-show="{{service.baseColor.length}}" class="service-box-color-preview" style="background-color:{{service.baseColor}}"></span></td>
+                        <td><a ng-click="editService(service.id)" ng-href="settings/services#tab-form-service-edit" data-toggle="tab">Edit</a></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="col-sm-6 col-xs-12">
-            <h3>Preview</h3>
-            <div class="node-box-wrapper">
-                <div class="node-box-content" style="background-color: {{editServiceObj.baseColor}}; color: {{editServiceObj.fontColor}}" title="{{editServiceObj.name}}">
-                    <span>{{editServiceObj.shortname}}</span>
+
+        <!-- Service edit form -->
+        <div id="tab-form-service-edit" class="tab-pane fade">
+            <div class="col-sm-6 col-xs-12">
+                <h3>Edit Service</h3>
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" name="name" class="form-control" ng-model="editServiceObj.name" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Shortname</label>
+                        <input type="text" name="shortname" class="form-control" ng-model="editServiceObj.shortname" required maxlength="7" />
+                    </div>
+                    <div class="form-group">
+                        <label>Font Color</label>
+                        <input type="text" name="font_color" class="form-control" ng-model="editServiceObj.fontColor" />
+                    </div>
+                    <div class="form-group">
+                        <label>Base Color</label>
+                        <input type="text" name="base_color" class="form-control" ng-model="editServiceObj.baseColor" />
+                    </div>
+                    <div class="form-group">
+                        <label>Group A</label>
+                        <input type="text" name="group_a" class="form-control" ng-model="editServiceObj.group_a" />
+                    </div>
+                    <div class="form-group">
+                        <label>Group B</label>
+                        <input type="text" name="group_b" class="form-control" ng-model="editServiceObj.group_b" />
+                    </div>
+                    <div class="form-group">
+                        <label>Group C</label>
+                        <input type="text" name="group_c" class="form-control" ng-model="editServiceObj.group_c" />
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-default"><a href="settings/services#tab-tbl-services" data-toggle="tab">Done</a></button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-sm-6 col-xs-12">
+                <h3>Preview</h3>
+                <div class="cbox" style="background-color: {{editServiceObj.baseColor}}; color: {{editServiceObj.fontColor}}" title="{{editServiceObj.name}}">
+                        <span>{{editServiceObj.shortname}}</span>
                 </div>
             </div>
         </div>
