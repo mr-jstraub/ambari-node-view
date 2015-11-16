@@ -59,7 +59,7 @@ app.config(function($routeProvider) {
 /**
  * Cluster-Build Controller
  **/
-app.controller('BuildController', ['$scope', 'DefEnvironment', function($scope, DefEnvironment){
+app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'BuildCluster', function($scope, DefEnvironment, MainCluster, BuildCluster){
     /* {int} maxNodes Maximum number of nodes allowed */
     $scope.maxNodes = 1000;
     /* {String} defHostname Default hostname of node */
@@ -68,14 +68,30 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', function($scope, 
     $scope.curService = null;
     /* {Service[]} List of services */
     $scope.services = DefEnvironment.services;
-    /* {Component[]} List of components */
-    $scope.comps = DefEnvironment.comps;
     /* {Component[]} Components of selected service w/o circ. structure */
     $scope.buildcomps = [];
     /* {Node[]} Nodes of cluster */
-    $scope.buildnodes = [{'name': 'master.example.com', 'comps': [], 'cardinality': 1}, {'name': 'mgmt.example.com', 'comps': [], 'cardinality': 1}, {'name': 'worker##{2}.example.com', 'comps': [], 'cardinality': 3}];
-    /* {Object} Different configurations */
-    $scope.config = {'cols': 'col-md-3'};
+    $scope.buildnodes = BuildCluster.cluster;
+    /* CLuster variables */
+    $scope.clusterMeta = BuildCluster.clusterMeta;
+
+    /**
+     * Finalizes the cluster and imports it.
+     */
+    $scope.finalize = function(){
+        console.debug('Finalizing built cluster.');
+
+        // prepare nodes
+        var clusterNodes = [];
+        for(var k in $scope.buildnodes){
+            var node = $scope.buildnodes[k];
+            var nodeHNames = $scope.genHostnames(node['name'], node['cardinality']);
+            clusterNodes.push({'hostnames': nodeHNames, 'comps': node.comps});
+        }
+
+        // import cluster
+        MainCluster.importBuiltCluster(clusterNodes, $scope.clusterMeta.name, $scope.clusterMeta.stack, $scope.clusterMeta.isKerberized);
+    };
 
     /**
      * Generates hostnames according to the given name.
@@ -137,13 +153,16 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', function($scope, 
 
     /**
      * New service selected, prepare components.
+     * DragNDrop module used JSON, hence we cannot use the comps 
+     * from the service object directly.
+     * @param {Service} selService the selected service
      */
     $scope.selectComps = function(selService){
         $scope.buildcomps = [];
         $scope.curService = selService;
         for(var key in selService.comps){
             var comp = selService.comps[key];
-            $scope.buildcomps.push({'name':comp['name'], 'id': comp['id'], 'baseColor': selService.baseColor, 'fontColor': selService.fontColor});
+            $scope.buildcomps.push({'name':comp['name'], 'shortname': comp['shortname'], 'id': comp['id'], 'baseColor': selService.baseColor, 'fontColor': selService.fontColor});
         }
     };
 
@@ -168,7 +187,6 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', function($scope, 
         for(var key in $scope.buildnodes){
             result += 1 * $scope.buildnodes[key]['cardinality'];
         }
-        console.debug('Num cluster nodes ' + result);
         return result;
     };
 
@@ -225,6 +243,8 @@ app.controller('MainController', ['$scope', '$route', '$routeParams', '$location
     $scope.$route = $route;
     $scope.$location = $location;
     $scope.$routeParams = $routeParams;
+    /* config */
+    $scope.config = {'useFullnames': true};
 }]);
 
 /**
@@ -243,37 +263,8 @@ app.controller('NodeViewController', ['$scope', 'DefEnvironment', 'MainCluster',
     this.config = {
         //Defines the number of components within a node on a single row, 0 to disable
         comps_per_row: 3
-    };*/
-
-    // TODO remove from controller and implement final
-    /*
-        Current workaround to avoid showing same nodes (equal components/services) a thousand times
+    };
     */
-    $scope.printedChksums = {};
-    $scope.isPrint = function(nodeid){
-        if($scope.printedChksums[nodeid]){
-            return true;
-        }
-        return false;
-    };
-
-    $scope.addPrintedNode = function(nodeid, chksum){
-        for(var k in $scope.printedChksums){
-            if($scope.printedChksums[k] == chksum){
-                return false;
-            }
-        }
-        $scope.printedChksums[nodeid] =  chksum;
-        return true;
-    };
-
-    this.preparePrint = function(){
-        for(var k in $scope.cluster.nodes){
-            $scope.addPrintedNode($scope.cluster.nodes[k].id, $scope.cluster.nodes[k].chksum);
-        }
-    }; 
-
-    this.preparePrint();
 }]);
 
 
@@ -369,7 +360,7 @@ app.controller('EditEnvController', ['$scope', 'DefEnvironment', function($scope
 /**
  * Cluster Model
  **/
-app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Node, DefEnvironment){
+app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', function(Config, Node, DefEnvironment, Component){
     function Cluster(){
         /* {string} Name of cluster */
         this.name = '';
@@ -379,8 +370,6 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Nod
         this.security = 'None';
         /* {Node[]} Object containing the Node objects of the cluster  */
         this.nodes = [];
-        /* {Object} Holds the cardinality of unique nodes (needs to be updated after changes to a node) */
-        this.cardinality = {};
         /* [Config[]] Optional configuration objects */
         this.config = null;
         // TODO fix this
@@ -396,9 +385,53 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Nod
         this.version = '';
         this.security = 'None';
         this.nodes = [];
-        this.cardinality = {};
         this.config = null;
         this.configItems = [];
+    };
+
+    /**
+     * Imports built cluster. Cluster was submitted by the build controller 
+     * in an internal object oriented format.
+     * @param {Object} data Cluster to be imported
+     * @param {String} name Clustername
+     * @param {String} stack Cluter stack
+     * @param {String} isSecured True if kerberos security is enabled, false otherwise
+     */
+    Cluster.prototype.importBuiltCluster = function(data, name, stack, isSecured){
+        console.debug('Trying to import built cluster');
+
+        // reset cluster data
+        this.reset();
+
+        // set  new cluster info
+        this.name = name;
+        this.version = stack;
+        this.security = (isSecured == 'true') ? 'Kerberos' : 'None';
+
+        // add nodes to cluster
+        for(var nk in data){
+            var node = data[nk];
+            var nodeHNames = node['hostnames'];
+            var nodeComps = [];
+
+            // prepare node components
+            for (var ck in node.comps){
+                var compId = node.comps[ck]['id'];
+                var comp = DefEnvironment.getComponentById(compId.toLowerCase());
+                if(comp instanceof Component){
+                    nodeComps.push(comp);
+                }                  
+            }
+
+            // add new Node
+            nodeIdx = this.addNode(nodeHNames, nodeComps);
+            if(nodeIdx < 0){
+                console.warn('Error creating new node');
+                continue;
+            }
+        }
+
+        console.info('Built Cluster imported');
     };
 
     /**
@@ -415,7 +448,7 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Nod
         var configs = [];
 
         if(!clusterImport || typeof(clusterImport) !== 'string'){
-            console.warn('Import cluster is empty');
+            console.warn('Import cluster is empty or wrong type provided');
             console.debug(clusterImport);
             return false;
         }
@@ -440,10 +473,15 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Nod
         this.name = clusterJson.name;
         this.version = clusterJson.stack_version;
         this.security = (clusterJson.security_type == 'KERBEROS') ? 'Kerberos' : 'None';
+        /* Array with checksum objects {idx: Index in node array, chksum: calc. Checksum}*/
+        var chksums = [];
+
         // add nodes to cluster
-        for(key in clusterJson.hosts_info){
+        for(var key in clusterJson.hosts_info){
             var nodeData = clusterJson.hosts_info[key];
-            var node = null;
+            var nodeIdx = null;
+            var nodeComps = [];
+            var nodeChksum = "";
 
             // validate data
             if(!nodeData || typeof(nodeData['host_name']) !== 'string'){
@@ -451,28 +489,50 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Nod
                 continue
             }
 
-            // add new Node
-            node = this.addNode(nodeData['host_name'], nodeData['url'])
-
-            if(!node){
-                console.warn('Error creating new node');
-                continue;
-            }
-
-            // add components
+            // prepare components
             for(var compKey in nodeData['components']){
                 var compId = nodeData['components'][compKey];
                 // search component object
                 var comp = DefEnvironment.getComponentById(compId.toLowerCase());
-                if(!node.addComponent(comp)){
-                    console.warn('Component could not be added to node: ' + compId);
-                }               
+                if(comp instanceof Component){
+                    nodeComps.push(comp);
+                }                  
             }
 
-            //console.debug('Added new node (#' + key + ')');
+            // calc checksum
+            nodeChksum = this.calcCompChecksum(nodeComps);
+
+            // check whether calc. checksum is already available
+            var isNodeDuplicate = false;
+            var avNodeIdx = null;
+            for(var ck in chksums){
+                if(chksums[ck]['chksum'] == nodeChksum){
+                    avNodeIdx = chksums[ck]['idx'];
+                    isNodeDuplicate = true;
+                    break;
+                }
+            }
+
+            if(isNodeDuplicate){
+                // TODO: implement url array 
+                //this.nodes[avNodeIdx].addHost(nodeData['host_name'], nodeData['url']);
+                this.nodes[avNodeIdx].addHost(nodeData['host_name']);
+                continue;
+            }
+
+            // add new Node
+            nodeIdx = this.addNode([nodeData['host_name']], nodeComps);
+
+            if(nodeIdx < 0){
+                console.warn('Error creating new node');
+                continue;
+            }
+
+            // save chksum
+            chksums.push({'idx': nodeIdx, 'chksum': nodeChksum});
         }
 
-        // process cluster configuration 
+        // process cluster configuration
         var configItems = [];
         for(var key in clusterJson.config){
             var config = clusterJson.config[key];
@@ -483,55 +543,32 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Nod
         this.config = configs;
         this.configItems = configItems;
 
-        // reload cardinalities
-        this.updateCardinality();
-
         console.info('Cluster imported');
     };
 
     /**
      * Adds a new node  to the cluster
-     * @param {string} hostname of the new node
-     * @param {string} url of the new node
-     * @returns Added node if successful, false otherwise
+     * @param {String[]} hostname of the new node
+     * @param {Component[]} comps List of components
+     * @returns Index of added node or -1
      **/
-    Cluster.prototype.addNode = function(hostname, url){
+    Cluster.prototype.addNode = function(hostname, comps){
         // validate data
-        if(!hostname || typeof(hostname) !== 'string'){
+        if(!hostname || typeof(hostname) !== 'object'){
             console.error('wrong type addNode');
-            return false;
+            return -1;
         }
 
         // add new node
-        var node = new Node(Node.newId(), hostname, url)
-        this.nodes.push(node);
-        return node;
-    };
-
-    /**
-     * Update the cardinality of unique nodes.
-     * Needs to be called after every Node change (e.g. addComponent, etc.)
-     **/
-    Cluster.prototype.updateCardinality = function(){
-        var cardinality = {};
-
-        // recalculate cardinality
-        for(var k in this.nodes){
-            if(cardinality[this.nodes[k].chksum]){
-                cardinality[this.nodes[k].chksum] += 1;
-            }else{
-                cardinality[this.nodes[k].chksum] = 1;
-            }
+        var node = new Node(Node.newId(), hostname);
+        if(!node){
+            return -1;
         }
-        // update value
-        this.cardinality = cardinality;
-    };
 
-    /**
-     * @returns the cardinality of the given checksum (Node tyoe)
-     **/
-    Cluster.prototype.getCardinality = function(chksum){
-        return (this.cardinality[chksum]) ? this.cardinality[chksum] : 0;
+        // add given components
+        node.addComponents(comps);
+        var idx = this.nodes.push(node);
+        return idx - 1;
     };
 
     /**
@@ -565,26 +602,49 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', function(Config, Nod
         return null;
     };
 
+    /**
+     * Calculates the checksum of the given comps.
+     * Used to see if two nodes are equal.
+     * @param {Component[]} Array of components
+     * @returns calculated checksum
+     */
+    Cluster.prototype.calcCompChecksum = function(comps){
+        if(comps && comps.length <= 0){
+            return '';
+        }
+
+        var compIds = [];
+        for(var key in comps){
+            compIds.push(comps[key].getSName());
+        }
+        return compIds.sort().toString();
+    };
+
     return Cluster;
 }]);
 
 
 /**
  * Node Model
+ * A node can represent a single or multiple physical nodes. 
+ * Multiple physical nodes share the same component structure
+ * and have a cardinality > 1
  **/
 app.factory('Node', ['Component', function(Component){
-    function Node(nodeId, name, url){
+    function Node(nodeId, hostnames){
         /* {string} Unique id of this node */
         this.id = nodeId;
-        /* {string} FQDN of the node */
-        this.url = (url) ? url : '';
+        /* @Deprecated {string} FQDN of the node */
+        this.url = '';
         /* {string} Name of the node */
-        this.name = name;
+        this.name = hostnames[0];
         /* {Component[]} Collection of node components */
         this.comps = [];
-
-        /* {string} Checksum to check equality with other nodes */
-        this.chksum = this.calcChecksum();
+        /* {string} A single or multiple hostnames of the nodes */
+        this.hostnames = (hostnames) ? hostnames : [];
+        /* {int} card Cardinality of this node, this should be 
+        identical to the number of elems in hostnames */
+        this.card = (hostnames.length > 0) ? hostnames.length : 1;
     }
 
     Node.CONF = {
@@ -616,6 +676,20 @@ app.factory('Node', ['Component', function(Component){
         }
 
         return compIds.sort().toString();
+    };
+
+    /**
+     * Adds a physical host to this node. 
+     * This increases the cardinality by 1!
+     * @param {String} hostname Hostname to be added
+     */
+    Node.prototype.addHost = function(hostname){
+        if(typeof(hostname) != 'string'){
+            console.warn('Cannot add host to node, invalid hostname!');
+            return;
+        }
+        this.hostnames.push(hostname);
+        this.card += 1;
     };
 
     /**
@@ -652,9 +726,6 @@ app.factory('Node', ['Component', function(Component){
             console.warn('Warning! Node: ' + this.name + ' already has given component: ' + comp.name);
             return false;
         }
-        
-        // update checksum
-        this.chksum = this.calcChecksum();
 
         return true;
     };
@@ -686,6 +757,28 @@ app.factory('Node', ['Component', function(Component){
             }
         }
         return false;
+    };
+
+    /**
+     * @returns The hostname in case of a single physical node
+     *          otherwise returns the string "Multiple Hosts".
+     */
+    Node.prototype.getHostname = function(){
+        if(this.hostnames && this.hostnames.length == 1){
+            return this.hostnames[0];
+        }
+        return 'Multiple Hosts';
+    };
+
+    /**
+     * @returns {int} The cardinality of this node
+     */
+    Node.prototype.getCardinality = function(){
+        // validate the cardinality before returning it
+        if(this.card != this.hostnames.length){
+            console.warn('Node has inconsistent data');
+        }
+        return this.card;
     };
 
     return Node;
@@ -1450,6 +1543,13 @@ app.service('MainCluster', function(Cluster) {
     var mainCluster = new Cluster();
     mainCluster.importCluster(cluster_sample);
     return mainCluster;
+});
+
+app.service('BuildCluster', function(Cluster) {
+    /* Cluster meta information */
+    this.clusterMeta = {'name': 'Horton-Cluster', 'stack': 'HDP-2.3.2', 'isKerberized': 'false'};
+    /* Built cluster */
+    this.cluster = [{'name': 'master.example.com', 'comps': [], 'cardinality': 1}, {'name': 'mgmt.example.com', 'comps': [], 'cardinality': 1}, {'name': 'worker##{2}.example.com', 'comps': [], 'cardinality': 3}];
 });
 
 
