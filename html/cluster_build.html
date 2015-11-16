@@ -1,5 +1,5 @@
 
-<div class="full-container">
+<div class="full-container buildcluster">
     <div class="row">
         <div class="col-xs-3 build-settings">
             <h3>Elements</h3>
@@ -7,6 +7,7 @@
                 <div class="tab-pane active" id="tab-clusterbuild-services">
                     <div class="toolbar">
                         <button class="btn btn-primary" ng-click="addNode()"><span class="glyphicon glyphicon-plus"></span>&nbsp;Node</button>
+                        <button class="btn btn-primary" ng-click="finalize()">Finalize</button>
                         <div class="trash pull-right" dnd-list="[]">
                             <span class="glyphicon glyphicon-trash"></span><span>Trash</span>
                         </div>
@@ -16,7 +17,7 @@
                             ng-repeat="service in services | orderBy:'name'" 
                             style="background-color: {{service.baseColor}}; color: {{service.fontColor}}" 
                             title="{{service.name}}">
-                        <span ng-click="selectComps(service)" ng-href="blueprint#tab-clusterbuild-comps" data-toggle="tab">{{service.name}}</span>
+                        <span ng-click="selectComps(service)" ng-href="blueprint#tab-clusterbuild-comps" data-toggle="tab">{{config.useFullnames ? service.name : service.shortname}}</span>
                     </div>
                 </div>
                 <div class="tab-pane slide" id="tab-clusterbuild-comps">
@@ -34,15 +35,41 @@
                             dnd-effect-allowed="copy"
                             style="background-color: {{comp.baseColor}}; color: {{comp.fontColor}}" 
                             title="{{comp.name}}">
-                        <span>{{comp.name}}</span>
+                        <span>{{config.useFullnames ? comp.name : comp.shortname}}</span>
                     </div>
                 </div>
             </div>
+            <div class="clearfix"></div>
+            <hr />
+            <h3>Cluster-Settings</h3>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-xs-4 control-label">Clustername: </label>
+                    <div class="col-xs-8">
+                        <input type="text" name="clustername" class="form-control" placeholder="MyCluster" ng-model="clusterMeta.name" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-4 control-label">Stack: </label>
+                    <div class="col-xs-8">
+                        <input type="text" name="clustername" class="form-control" placeholder="HDP-2.3.0" ng-model="clusterMeta.stack" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-xs-4 control-label">Kerberos: </label>
+                    <div class="col-xs-4">
+                        <select class="form-control" ng-model="clusterMeta.isKerberized">
+                            <option value="false" selected="selected">NO</option>
+                            <option value="true">YES</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="col-xs-9">
             <h3>Cluster</h3>
             <div class="row" dnd-list="[]">
-                <div ng-class="config.cols" ng-repeat="node in buildnodes">
+                <div class="col-md-3" ng-repeat="node in buildnodes">
                     <div class="box" 
                             dnd-list="node.comps" 
                             dnd-drop="isUnique(event, item, node)">
@@ -60,7 +87,7 @@
                                     dnd-moved="node.comps.splice($index, 1)"
                                     dnd-effect-allowed="move"
                                     style="background-color: {{comp.baseColor}}; color: {{comp.fontColor}}">
-                                <span>{{comp.name}}</span>
+                                <span>{{config.useFullnames ? comp.name : comp.shortname}}</span>
                             </div>                            
                         </div>
                     </div>

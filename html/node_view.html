@@ -3,19 +3,19 @@
         <div class="tab-pane" id="cluster-comp-view">
             <h1>{{cluster.name}} ({{cluster.version}})</h1>
             <div class="row">
-                <div class="col-md-6" ng-repeat="node in cluster.nodes" ng-show="{{isPrint(node.id)}}">
+                <div class="col-md-6" ng-repeat="node in cluster.nodes">
                     <div class="box">
                         <div class="box-main">
                             <div class="cbox" 
                                     ng-repeat="comp in node.comps | orderBy:'service.group_a'"
                                     style="background-color: {{comp.service.baseColor}}; color: {{comp.service.fontColor}}" 
                                     title="{{comp.name}}">
-                                <span>{{comp.shortname}}</span>
+                                <span>{{config.useFullnames ? comp.name : comp.shortname}}</span>
                             </div>
                         </div>
                         <div class="box-footer">
-                            <span>{{cluster.getCardinality(node.chksum) > 1 ? 'Multiple Hosts' : node.name}}</span>
-                            <span class="cardinality">(#{{cluster.getCardinality(node.chksum)}})</span>
+                            <span>{{node.getHostname()}}</span>
+                            <span class="cardinality">(#{{node.getCardinality()}})</span>
                         </div>
                     </div>
                 </div>
@@ -27,19 +27,19 @@
         <!-- service view -->
             <h1>{{cluster.name}} ({{cluster.version}})</h1>
             <div class="row">
-                <div class="col-md-6" ng-repeat="node in cluster.nodes" ng-show="{{isPrint(node.id)}}">
+                <div class="col-md-6" ng-repeat="node in cluster.nodes">
                     <div class="box">
                         <div class="box-main">
                             <div class="cbox" 
                                     ng-repeat="service in services = node.getNodeServices()"
                                     style="background-color: {{service.baseColor}}; color: {{service.fontColor}}" 
                                     title="{{service.name}}">
-                                <span>{{service.shortname}}</span>
+                                <span>{{config.useFullnames ? service.name : service.shortname}}</span>
                             </div>
                         </div>
                         <div class="box-footer">
-                            <span>{{cluster.getCardinality(node.chksum) > 1 ? 'Multiple Hosts' : node.name}}</span>
-                            <span class="cardinality">(#{{cluster.getCardinality(node.chksum)}})</span>
+                            <span>{{node.getHostname()}}</span>
+                            <span class="cardinality">(#{{node.getCardinality()}})</span>
                         </div>
                     </div>
                 </div>
@@ -53,7 +53,11 @@
             <table class="table table-striped tbl-list-view">
                 <tbody>
                     <tr ng-repeat="node in cluster.nodes">
-                        <td>{{node.name}}<br /><i>{{node.comps.length}} components</i></td>
+                        <td>
+                            <span ng-repeat="hostname in node.hostnames">
+                                {{hostname}}
+                            </span>
+                            <i>{{node.comps.length}} components</i></td>
                         <td><span ng-repeat="comp in node.comps | orderBy:'service.group_a'">{{comp.name}}</span></td>
                         <td><span ng-repeat="service in node.getNodeServices()">{{service.name}}</span></td>
                     </tr>
@@ -83,7 +87,7 @@
             <form class="form-horizontal" novalidate>
                 <div class="form-group">
                     <label>Node</label>
-                    <select ng-model="node" ng-options="node.name for node in nodes = nodes" class="form-control" required ng-change="formChange()"></select>
+                    <select ng-model="node" ng-options="node.getHostname() for node in nodes = nodes" class="form-control" required ng-change="formChange()"></select>
                 </div>
                 <div class="form-group">
                     <label>Component</label>

@@ -36,8 +36,8 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav">
             <li><a href="#/">Cluster</a></li>
-            <li><a href="#/legend">Legend</a></li>
             <li><a href="#/build">Build</a></li>
+            <li><a href="#/legend">Legend</a></li>
             <!--<li><a href="#/configuration">Configuration</a></li>-->
             <li class="dropdown">
               <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings <span class="caret"></span></a>
@@ -57,11 +57,15 @@
             </div>
           </form>
           -->
+          
           <ul class="nav navbar-nav navbar-right" ng-show="$location.path()=='/'">
             <li><p class="navbar-text"><strong>View:&nbsp;</strong></p></li>
             <li><button class="btn btn-default navbar-btn" href="#cluster-services-view" data-toggle="tab">Service</button></li>
             <li><button class="btn btn-default navbar-btn" href="#cluster-comp-view" data-toggle="tab">Component</button></li>
             <li><button class="btn btn-default navbar-btn" href="#cluster-list-view" data-toggle="tab">List</button></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right" ng-show="$location.path()=='/' || $location.path()=='/build'">
+            <li><p class="navbar-text"><label><input type="checkbox" name="useFullnames" ng-model="config.useFullnames" />&nbsp;<strong>show fullnames</strong></label></p></li>
           </ul>
         </div>
       </div>
