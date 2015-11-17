@@ -66,6 +66,8 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'B
     $scope.defHostname = 'node.example.com';
     /* {Service} curService Currently selected service */
     $scope.curService = null;
+    /* {int} curBundle Currently selected bundle index */
+    $scope.curBundle = null;
     /* {Service[]} List of services */
     $scope.services = DefEnvironment.services;
     /* {Component[]} Components of selected service w/o circ. structure */
@@ -74,6 +76,8 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'B
     $scope.buildnodes = BuildCluster.cluster;
     /* CLuster variables */
     $scope.clusterMeta = BuildCluster.clusterMeta;
+    /* List of available bundles */
+    $scope.bundles = BuildCluster.bundles;
 
     /**
      * Finalizes the cluster and imports it.
@@ -163,6 +167,24 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'B
         for(var key in selService.comps){
             var comp = selService.comps[key];
             $scope.buildcomps.push({'name':comp['name'], 'shortname': comp['shortname'], 'id': comp['id'], 'baseColor': selService.baseColor, 'fontColor': selService.fontColor});
+        }
+    };
+
+    /**
+     * New bundle selected, prepare components.
+     * DragNDrop module used JSON, hence we cannot use the comps 
+     * from the service object directly.
+     * @param {int} idx Index of selected bundle
+     */
+    $scope.selectBundleComps = function(idx){
+        $scope.buildcomps = [];
+        $scope.curBundle = idx;
+        var bundle = $scope.bundles[idx];
+
+        for(var ck in bundle.comps){
+            var comp = DefEnvironment.getComponentById(bundle.comps[ck]);
+            if(!comp) continue;
+            $scope.buildcomps.push({'name':comp['name'], 'shortname': comp['shortname'], 'id': comp['id'], 'baseColor': comp.service.baseColor, 'fontColor': comp.service.fontColor});
         }
     };
 
@@ -1247,7 +1269,7 @@ app.service('DefEnvironment', function(Environment) {
                     {'id': 'journalnode', 'name': 'Journalnode' , 'shortname': 'JN'},
                     {'id': 'namenode', 'name': 'Namenode' , 'shortname': 'NN'},
                     {'id': 'secondary_namenode', 'name': 'Secondary Namenode' , 'shortname': 'SNN'},
-                    {'id': 'zkfc', 'name': 'Zkfc' , 'shortname': 'ZKFC'}
+                    {'id': 'zkfc', 'name': 'ZK Failover Controller' , 'shortname': 'ZKFC'}
                 ]
             },
             'kafka' : {
@@ -1545,11 +1567,15 @@ app.service('MainCluster', function(Cluster) {
     return mainCluster;
 });
 
-app.service('BuildCluster', function(Cluster) {
+app.service('BuildCluster', function() {
     /* Cluster meta information */
     this.clusterMeta = {'name': 'Horton-Cluster', 'stack': 'HDP-2.3.2', 'isKerberized': 'false'};
+    /* Default cluster */
+    var defCluster = [{'name': 'gateway.example.com', 'comps': [], 'cardinality': 1}, {'name': 'mgmt.example.com', 'comps': [], 'cardinality': 1}, {'name': 'master01.example.com', 'comps': [], 'cardinality': 1}, {'name': 'master02.example.com', 'comps': [], 'cardinality': 1}, {'name': 'master03.example.com', 'comps': [], 'cardinality': 1}, {'name': 'worker0#{0}.example.com', 'comps': [], 'cardinality': 3}];
     /* Built cluster */
-    this.cluster = [{'name': 'master.example.com', 'comps': [], 'cardinality': 1}, {'name': 'mgmt.example.com', 'comps': [], 'cardinality': 1}, {'name': 'worker##{2}.example.com', 'comps': [], 'cardinality': 3}];
+    this.cluster = defCluster;
+    /* List of av. bundles, e.g. HDFS HA */
+    this.bundles = [{'shortname': 'HDFS_HA', 'name': 'HDFS HA' ,'comps': ['namenode','namenode','journalnode',,'journalnode','journalnode','zkfc','zkfc','zookeeper_server','zookeeper_server','zookeeper_server']}, {'shortname': 'YARN_HA', 'name': 'YARN HA' ,'comps': ['resourcemanager','resourcemanager','zookeeper_server','zookeeper_server','zookeeper_server']}]
 });
 
 

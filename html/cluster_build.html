@@ -17,12 +17,20 @@
                             ng-repeat="service in services | orderBy:'name'" 
                             style="background-color: {{service.baseColor}}; color: {{service.fontColor}}" 
                             title="{{service.name}}">
-                        <span ng-click="selectComps(service)" ng-href="blueprint#tab-clusterbuild-comps" data-toggle="tab">{{config.useFullnames ? service.name : service.shortname}}</span>
+                        <span ng-click="selectComps(service)" ng-href="build#tab-clusterbuild-comps" data-toggle="tab">{{config.useFullnames ? service.name : service.shortname}}</span>
+                    </div>
+                    <div class="clearfix"></div>
+                    <hr />
+                    <h4>Bundles</h4>
+                    <div class="cbox" 
+                            ng-repeat="bundle in bundles | orderBy:'name'"  
+                            title="{{bundle.name}}">
+                        <span ng-click="selectBundleComps($index)" ng-href="build#tab-clusterbuild-comps" data-toggle="tab">{{config.useFullnames ? bundle.name : bundle.shortname}}</span>
                     </div>
                 </div>
                 <div class="tab-pane slide" id="tab-clusterbuild-comps">
                     <div class="toolbar">
-                        <button class="btn btn-primary" ng-href="blueprint#tab-clusterbuild-services" data-toggle="tab"><span class="glyphicon glyphicon-chevron-left"></span>Back</button>
+                        <button class="btn btn-primary" ng-href="build#tab-clusterbuild-services" data-toggle="tab"><span class="glyphicon glyphicon-chevron-left"></span>Back</button>
                         <div class="trash pull-right" dnd-list="[]">
                             <span class="glyphicon glyphicon-trash"></span><span>Trash</span>
                         </div>
