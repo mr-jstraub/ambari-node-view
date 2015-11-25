@@ -65,6 +65,22 @@ body {
   color: #333;
   background-color: #f5f5f5;
 }
+
+.box-header-editable a {
+  margin-left:4px;
+}
+.box-header-editable form{
+  margin-top: -6px;
+  margin-bottom:-6px;
+}
+.box-header-editable .has-error .editable-card {
+  margin-top: 12px;
+  margin-bottom: 4px;
+}
+.box-header-editable .editable-card {
+  width: 70px;
+}
+
 .box-title {
   margin-top: 0;
   margin-bottom: 0;
@@ -165,6 +181,20 @@ body {
     padding-bottom: 15px;
 }
 
+/* disable text selection */
+.build-settings .cbox {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.build-settings .input-stack {
+  padding-right: 0px;
+}
+
 .buildcluster .cbox {
   cursor: pointer;
 }
@@ -173,5 +203,30 @@ body {
     display:none;
 }
 
+.blueprint {
+  
+}
+
+.blueprint pre {
+  font-size:11px;
+  height: 400px;
+  overflow-y:scroll;
+}
+
+.config-tbl td {
+  word-break: break-word;
+  word-wrap: break-word;
+}
+
+.config-tbl td form,
+.config-tbl td .form-group,
+.config-tbl td input {
+  width:100%!important;
+}
+
+
+.config-tbl .config-val {
+  width:50%;
+}
 
 

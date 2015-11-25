@@ -1,7 +1,7 @@
 
 <div class="full-container buildcluster">
     <div class="row">
-        <div class="col-xs-3 build-settings">
+        <div class="col-md-3  build-settings">
             <h3>Elements</h3>
             <div class="tab-content">
                 <div class="tab-pane active" id="tab-clusterbuild-services">
@@ -59,8 +59,11 @@
                 </div>
                 <div class="form-group">
                     <label class="col-xs-4 control-label">Stack: </label>
-                    <div class="col-xs-8">
-                        <input type="text" name="clustername" class="form-control" placeholder="HDP-2.3.0" ng-model="clusterMeta.stack" />
+                    <div class="col-xs-4 input-stack">
+                        <input type="text" name="stackId" class="form-control" placeholder="HDP" ng-model="clusterMeta.stackId" />
+                    </div>
+                    <div class="col-xs-4">
+                        <input type="text" name="stackVersion" class="form-control" placeholder="2.3" ng-model="clusterMeta.stackVersion" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -74,19 +77,22 @@
                 </div>
             </form>
         </div>
-        <div class="col-xs-9">
+        <div class="col-md-9">
             <h3>Cluster</h3>
             <div class="row" dnd-list="[]">
-                <div class="col-md-3" ng-repeat="node in buildnodes">
+                <div class="col-lg-4 col-md-4" ng-repeat="node in buildnodes">
                     <div class="box" 
                             dnd-list="node.comps" 
                             dnd-drop="isUnique(event, item, node)">
                         <div class="box-header">
-                            <a href="#" editable-text="node.name" e-required>{{ node.name || defHostname }}</a>
-                            <a href="#" editable-number="node.cardinality" onbeforesave="checkCardinality($data, node.cardinality)">(#{{ node.cardinality || 1 }})</a>
                             <button type="button" class="btn btn-primary btn-xs pull-right" ng-click="removeNode($index)">
                                 <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                             </button>
+                            <div class="box-header-editable">
+                                <a href="#" buttons="no" editable-text="node.name" e-required e-class="editable-name">{{ node.name || defHostname }}</a>
+                                <a href="#" buttons="no" editable-number="node.cardinality" onbeforesave="checkCardinality($data, node.cardinality)" e-class="editable-card">(#{{ node.cardinality || 1 }})</a>
+                            </div>
+                            
                         </div>
                         <div class="box-main">
                             <div class="cbox" 
