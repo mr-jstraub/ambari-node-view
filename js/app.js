@@ -61,7 +61,7 @@ app.config(function($routeProvider) {
 
 
 /**
- * Cluster-Build Controller
+ * Blueprint Controller (----BETA----)
  **/
 app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster', 'BuildCluster', 'Blueprint', function($scope, DefEnvironment, MainCluster, BuildCluster, Blueprint){
     /* Blueprint/Clustername name */
@@ -131,6 +131,7 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
 
         // trigger blueprint update
         if(triggerUpdate){
+            $scope.prepareBaseBlueprint(MainCluster.nodes);
             $scope.updateBlueprintConfig(true);
         }
         return true;
@@ -157,6 +158,8 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
     $scope.removeConfigItem = function(idx){
         if(idx in $scope.configItems){
             delete $scope.configItems[idx];
+            $scope.prepareBaseBlueprint(MainCluster.nodes);
+            $scope.updateBlueprintConfig(true);
         }
     };
 
@@ -166,7 +169,7 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
     $scope.removeConfigItemByRegex = function(regex){
         for(var k in $scope.configItems){
             if(k.match(regex)){
-                delete $scope.configItems[k];
+                $scope.removeConfigItem(k);
             }
         }
     };
@@ -247,6 +250,11 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
      * Prepare bundle blueprint configurations
      */
     $scope.prepareBlueprintConfigBundles = function(){
+        // only prepare if resetBundle flag is set
+        if(!Blueprint.resetBundle){
+            return;
+        }
+
         /* HDFS HA bundle */
         // check whether bundle is available
         var res = detectBundle(Blueprint.hdfsBundle, $scope.blueprintObj['host_groups']);
@@ -289,35 +297,58 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
 
         /*Yarn HD bundle*/
         res = detectBundle(Blueprint.yarnBundle, $scope.blueprintObj['host_groups']);
+        // remove yarn ha config
+        $scope.removeConfigItem('yarn-site_hadoop.registry.rm.enabled');
+        $scope.removeConfigItem('yarn-site_hadoop.registry.zk.quorum');
+        $scope.removeConfigItem('yarn-site_yarn.log.server.url');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.address');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.admin.address');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.cluster-id');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.ha.automatic-failover.zk-base-path');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.ha.enabled');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.ha.rm-ids');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.hostname');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.recovery.enabled');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.resource-tracker.address');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.scheduler.address');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.store.class');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.webapp.address');
+        $scope.removeConfigItem('yarn-site_yarn.timeline-service.address');
+        $scope.removeConfigItem('yarn-site_yarn.timeline-service.webapp.address');
+        $scope.removeConfigItem('yarn-site_yarn.timeline-service.webapp.https.address');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.zk-address');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.hostname.rm1');
+        $scope.removeConfigItem('yarn-site_yarn.resourcemanager.hostname.rm2');
         if(res){
-
-            /*
-            $scope.addConfigItem('yarn-site', 'hadoop.registry.rm.enabled' : 'false', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'hadoop.registry.zk.quorum' : '%HOSTGROUP::' + res['zookeeper_server'][0] + '%:2181,%HOSTGROUP::' + res['zookeeper_server'][1] + '%:2181,%HOSTGROUP::' + res['zookeeper_server'][2] + '%:2181', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.log.server.url' : 'http://%HOSTGROUP::master_2%:19888/jobhistory/logs', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.address' : '%HOSTGROUP::master_2%:8050', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.admin.address' : '%HOSTGROUP::master_2%:8141', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.cluster-id' : 'yarn-cluster', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.ha.automatic-failover.zk-base-path' : '/yarn-leader-election', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.ha.enabled' : 'true', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.ha.rm-ids' : 'rm1,rm2', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.hostname' : '%HOSTGROUP::master_2%', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.recovery.enabled' : 'true', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.resource-tracker.address' : '%HOSTGROUP::master_2%:8025', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.scheduler.address' : '%HOSTGROUP::master_2%:8030', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.store.class' : 'org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.webapp.address' : '%HOSTGROUP::master_2%:8088', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.timeline-service.address' : '%HOSTGROUP::master_2%:10200', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.timeline-service.webapp.address' : '%HOSTGROUP::master_2%:8188', 'YES', 'none', false);
-            $scope.addConfigItem('yarn-site', 'yarn.timeline-service.webapp.https.address' : '%HOSTGROUP::master_2%:8190', 'YES', 'none', false);
-            */
-        }else{
-
+            $scope.addConfigItem('yarn-site', 'hadoop.registry.rm.enabled', 'false', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'hadoop.registry.zk.quorum', '%HOSTGROUP::' + res['zookeeper_server'][0] + '%:2181,%HOSTGROUP::' + res['zookeeper_server'][1] + '%:2181,%HOSTGROUP::' + res['zookeeper_server'][2] + '%:2181', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.log.server.url', 'http://%HOSTGROUP::' + res['historyserver'][0] + '%:19888/jobhistory/logs', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.address', '%HOSTGROUP::' + res['resourcemanager'][0] + '%:8050', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.admin.address', '%HOSTGROUP::' + res['resourcemanager'][0] + '%:8141', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.cluster-id', 'yarn-cluster', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.ha.automatic-failover.zk-base-path', '/yarn-leader-election', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.ha.enabled', 'true', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.ha.rm-ids', 'rm1,rm2', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.hostname', '%HOSTGROUP::' + res['resourcemanager'][0] + '%', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.recovery.enabled', 'true', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.resource-tracker.address', '%HOSTGROUP::' + res['resourcemanager'][0] + '%:8025', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.scheduler.address', '%HOSTGROUP::' + res['resourcemanager'][0] + '%:8030', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.store.class', 'org.apache.hadoop.yarn.server.resourcemanager.recovery.ZKRMStateStore', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.webapp.address', '%HOSTGROUP::' + res['resourcemanager'][0] + '%:8088', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.timeline-service.address', '%HOSTGROUP::' + res['app_timeline_server'][0] + '%:10200', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.timeline-service.webapp.address', '%HOSTGROUP::' + res['app_timeline_server'][0] + '%:8188', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.timeline-service.webapp.https.address', '%HOSTGROUP::' + res['app_timeline_server'][0] + '%:8190', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.zk-address', '%HOSTGROUP::' + res['zookeeper_server'][0] + '%:2181,%HOSTGROUP::' + res['zookeeper_server'][1] + '%:2181,%HOSTGROUP::' + res['zookeeper_server'][2] + '%:2181', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.hostname.rm1', '%HOSTGROUP::' + res['resourcemanager'][0] + '%:8190', 'YES', 'none', false);
+            $scope.addConfigItem('yarn-site', 'yarn.resourcemanager.hostname.rm2', '%HOSTGROUP::' + res['resourcemanager'][1] + '%:8190', 'YES', 'none', false);
         }
 
+        // reset flag
+        Blueprint.resetBundle = false;
     };
 
 
+    // TODO: better impl. necessary
     /**
      * Converts the configItems object to the blueprint json format.
      */
@@ -380,12 +411,7 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
         }
         return -1;
     };
-
-
     
-
-    
-
     /**
      * Tries to detect if the given bundle/list of components
      * is available in the cluster.
@@ -422,7 +448,6 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
 
             // validate cardinality constraint
             if(res[comp].length < cardinality){
-                console.log('bundle not detected');
                 return null;
             }
         }
@@ -455,14 +480,6 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
         return (typeof(name) != 'string') ? '' : name.replace(/\W+/g, '').toLowerCase();
     }
 
-    /**
-     * Selects the text or code that inside the specified
-     * container.
-     */
-    $scope.copyToClipboard = function(id) {
-        var clipboard = new Clipboard(id);
-    };
-
     //TODO: temp!
     $scope.getFormHostGroups = function(){
         return ['none'].concat($scope.hostGroupNames);
@@ -476,7 +493,7 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
 /**
  * Cluster-Build Controller
  **/
-app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'BuildCluster', function($scope, DefEnvironment, MainCluster, BuildCluster){
+app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'BuildCluster', 'Blueprint', function($scope, DefEnvironment, MainCluster, BuildCluster, Blueprint){
     /* {int} maxNodes Maximum number of nodes allowed */
     $scope.maxNodes = 1000;
     /* {String} defHostname Default hostname of node */
@@ -512,6 +529,9 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'B
 
         // prepare stack
         $scope.clusterMeta.stack = $scope.clusterMeta.stackId + '-' + $scope.clusterMeta.stackVersion;
+
+        // reset blueprint bundle calculation
+        Blueprint.resetBundle = true;
 
         // import cluster
         MainCluster.importBuiltCluster(clusterNodes, $scope.clusterMeta.name, $scope.clusterMeta.stack, $scope.clusterMeta.isKerberized);
@@ -712,7 +732,7 @@ app.controller('NodeViewController', ['$scope', 'DefEnvironment', 'MainCluster',
 /**
  * Import and Export - Controller
  **/
-app.controller('ImportExportController', ['$scope', 'DefEnvironment', 'MainCluster', function($scope, DefEnvironment, MainCluster){
+app.controller('ImportExportController', ['$scope', 'DefEnvironment', 'MainCluster', 'Blueprint', function($scope, DefEnvironment, MainCluster, Blueprint){
     /* {Json string} Enviornment that will be imported */
     $scope.importEnv = DefEnvironment.getStoredEnvAsStr();
     /* {Json string} Cluster that will be imported  */
@@ -726,6 +746,8 @@ app.controller('ImportExportController', ['$scope', 'DefEnvironment', 'MainClust
             console.warn('Unable to import empty cluster or environment');
             return;
         }
+        // reset blueprint bundle calculation
+        Blueprint.resetBundle = true;
         // Load new env
         DefEnvironment.loadEnvFromJsonStr($scope.importEnv);
         MainCluster.importCluster($scope.importCluster);
@@ -1744,7 +1766,7 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'MapReduce',
                 'shortname': 'MR',
                 'components' : [
-                    {'id': 'historyserver', 'name': 'Historyserver' , 'shortname': 'JHS'},
+                    {'id': 'historyserver', 'name': 'Historyserver' , 'shortname': 'JHS', 'blueprint': true},
                     {'id': 'mapreduce2_client', 'name' : 'Mapreduce2 Client', 'shortname': 'MR', 'blueprint': true}
                 ]
             },
@@ -2009,12 +2031,15 @@ app.service('BuildCluster', function() {
  * Holds blueprint configs/meta/templates
  */
 app.service('Blueprint', function() {
+    /* Reset Bundle, True recalculates bundle configurations, False leaves current config,
+       This is set to true duringcluste rimport and finalization of build cluster */
+    this.resetBundle = true;
     /* Config items */
     this.configItems = {};
     /* HDFS Bundle */
     this.hdfsBundle = {'namenode': 2, 'zkfc': 2, 'journalnode': 3, 'zookeeper_server': 3};
     /* Yarn Bundle */
-    this.yarnBundle = {'resourcemanager': 2, 'zookeeper_server': 3};
+    this.yarnBundle = {'resourcemanager': 2, 'zookeeper_server': 3, 'historyserver': 1, 'app_timeline_server': 1};
     /* {String} hostgroupPfx prefix of host groups (e.g. host_group_ resolves to host_group_1...) */
     this.hostgroupPfx = 'host_group_';
     /* Config location typeahead */

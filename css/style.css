@@ -209,7 +209,8 @@ body {
 
 .blueprint pre {
   font-size:11px;
-  height: 400px;
+  height: 550px;
+  word-wrap: normal;
   overflow-y:scroll;
 }
 

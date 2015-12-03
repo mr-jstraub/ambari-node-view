@@ -1,93 +1,111 @@
 <div class="full-container">
 	<h1>Blueprint <small>-Beta-</small></h1>
 	<hr />
-    <div class="row">
-    	<form ng-submit="addConfigItemFromForm()" class="form-horizontal">
-	    	<div class="col-sm-12">
-	    		<h3>Configuration</h3>
-	        	<p>Feel free to add some configuration values manually.</p>
-	    	</div>
-	    	<div class="col-sm-4 col-xs-12">
-	            <div class="form-group">
-	                <label class="col-sm-4 col-xs-5 control-label">Location: </label>
-	                <div class="col-sm-8 col-xs-7">
-	                    <input type="text" name="newConfigLoc" autocomplete="off" class="form-control" placeholder="e.g. hdfs-site" ng-model="newConfig.loc" uib-typeahead="confLoc for confLoc in configLocations | filter:$viewValue | limitTo:8" required />
-	                </div>
-	            </div>
-	            <div class="form-group">
-	                <label class="col-sm-4 col-xs-5 control-label">Parameter: </label>
-	                <div class="col-sm-8 col-xs-7">
-	                    <input type="text" name="newConfigId" autocomplete="off" class="form-control" placeholder="e.g. dfs.blocksize" ng-model="newConfig.id" uib-typeahead="confId for confId in configIds | filter:$viewValue | limitTo:8" required />
-	                </div>
-	            </div>
-	            <div class="form-group">
-	                <label class="col-sm-4 col-xs-5 control-label">Value: </label>
-	                <div class="col-sm-8 col-xs-7">
-	                    <input type="text" name="newConfigVal" autocomplete="off" class="form-control" placeholder="e.g. 1200000" ng-model="newConfig.val" />
-	                </div>
-	            </div>
-	        </div>
-	    	<div class="col-sm-6 col-xs-12">
-	            <div class="form-group">
-	                <label class="col-sm-4 col-xs-5 control-label">Blueprint or Hostgroup-Mapping: </label>
-	                <div class="col-sm-5 col-xs-7">
-	                    <select class="form-control" ng-model="newConfig.bprint">
-	                    	<option ng-repeat="item in bprintFormSelect" value="{{item.id}}">{{item.name}}</option>
-	                    </select>
-	                </div>
-	            </div>
-	            <div class="form-group">
-	                <label class="col-sm-4 col-xs-5 control-label">Hostgroup (optional): </label>
-	                <div class="col-sm-5 col-xs-7">
-	                    <select class="form-control" ng-model="newConfig.hg">
-	                    	<option ng-repeat="name in getFormHostGroups()" value="{{name}}">{{name}}</option>
-	                    </select>
-	                </div>
-	            </div>
-	            <div class="form-group">
-	            	<div class="col-xs-12 col-sm-9">
-	            		<input type="submit" class="btn btn-primary pull-right" value="Add" />
-	            	</div>
-	            </div>
-	        </div>
-		</form>
-    </div>
-    <hr />
-    <div class="row">
-        <div class="col-sm-12">
-        	<table class="config-tbl table table-condensed table-striped">
-				<thead>
-					<tr>
-						<th>Location</th>
-						<th>Blueprint?</th>
-						<th>Hostgroup</th>
-						<th>Config Parameter</th>
-						<th>Value</th>
-						<th>&nbsp;</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr ng-repeat="(key,item) in configItems | orderBy:'loc'">
-						<td class="config-loc"><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-text="item.loc" e-required e-uib-typeahead="confLoc for confLoc in configLocations | filter:$viewValue | limitTo:8">{{item.loc}}</span></td>
-						<td><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-select="item.bprint" e-ng-options="bprint.id as bprint.name for bprint in bprintFormSelect">{{item.bprint}}</span></td>
-						<td><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-select="item.hg" e-ng-options="name as name for name in getFormHostGroups()">{{item.hg}}</span></td>
-						<td class="config-id"><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-text="item.id" e-required e-uib-typeahead="confId for confId in configIds | filter:$viewValue | limitTo:8">{{item.id}}</span></td>
-						<td class="config-val"><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-text="item.val">{{item.val || "empty"}}</span></td>
-						<td><button class="btn btn-xs btn-primary" ng-click="removeConfigItem(key)"><span class="glyphicon glyphicon-remove"></span></button></td>
-					</tr>
-				</tbody>
-			</table>
-        </div>
-    </div>
-    <hr />
-    <div class="row">
-    	<div class="col-sm-6 blueprint">
-            <h3>Cluster-Blueprint <button class="pull-right btn btn-primary btn-xs" id="blueprint-res-json-clipboard" ng-click="copyToClipboard('#blueprint-res-json-clipboard')" data-clipboard-target="#blueprint-res-json">Copy</button></h3>
-            <pre id="blueprint-res-json">{{blueprintJson}}</pre>
-        </div>
-        <div class="col-sm-6 blueprint">
-            <h3>Hostgroups <button class="pull-right btn btn-primary btn-xs" id="hostgroup-res-json-clipboard" ng-click="copyToClipboard('#hostgroup-res-json-clipboard')" data-clipboard-target="#hostgroup-res-json">Copy</button></h3>
-            <pre id="hostgroup-res-json">{{hostgroupJson}}</pre>
-        </div>
-    </div>
+	<ul class="nav nav-tabs" role="tablist">
+		<li class="active"><a href="/#tab-blueprint" role="tab" data-toggle="tab">Blueprint</a></li>
+		<li><a href="/#tab-config" role="tab" data-toggle="tab">Cluster-Configuration</a></li>
+	</ul>
+	<div class="tab-content">
+		<div class="tab-pane" id="tab-config">
+		    <div class="row">
+		    	<form ng-submit="addConfigItemFromForm()" class="form-horizontal">
+			    	<div class="col-sm-12">
+			    		<h3>Configuration</h3>
+			        	<p>Feel free to add some configuration values manually.</p>
+			    	</div>
+			    	<div class="col-sm-4 col-xs-12">
+			            <div class="form-group">
+			                <label class="col-sm-4 col-xs-5 control-label">Location: </label>
+			                <div class="col-sm-8 col-xs-7">
+			                    <input type="text" name="newConfigLoc" autocomplete="off" class="form-control" placeholder="e.g. hdfs-site" ng-model="newConfig.loc" uib-typeahead="confLoc for confLoc in configLocations | filter:$viewValue | limitTo:8" required />
+			                </div>
+			            </div>
+			            <div class="form-group">
+			                <label class="col-sm-4 col-xs-5 control-label">Parameter: </label>
+			                <div class="col-sm-8 col-xs-7">
+			                    <input type="text" name="newConfigId" autocomplete="off" class="form-control" placeholder="e.g. dfs.blocksize" ng-model="newConfig.id" uib-typeahead="confId for confId in configIds | filter:$viewValue | limitTo:8" required />
+			                </div>
+			            </div>
+			            <div class="form-group">
+			                <label class="col-sm-4 col-xs-5 control-label">Value: </label>
+			                <div class="col-sm-8 col-xs-7">
+			                    <input type="text" name="newConfigVal" autocomplete="off" class="form-control" placeholder="e.g. 1200000" ng-model="newConfig.val" />
+			                </div>
+			            </div>
+			        </div>
+			    	<div class="col-sm-6 col-xs-12">
+			            <div class="form-group">
+			                <label class="col-sm-4 col-xs-5 control-label">Blueprint or Hostgroup-Mapping: </label>
+			                <div class="col-sm-5 col-xs-7">
+			                    <select class="form-control" ng-model="newConfig.bprint">
+			                    	<option ng-repeat="item in bprintFormSelect" value="{{item.id}}">{{item.name}}</option>
+			                    </select>
+			                </div>
+			            </div>
+			            <div class="form-group">
+			                <label class="col-sm-4 col-xs-5 control-label">Hostgroup (optional): </label>
+			                <div class="col-sm-5 col-xs-7">
+			                    <select class="form-control" ng-model="newConfig.hg">
+			                    	<option ng-repeat="name in getFormHostGroups()" value="{{name}}">{{name}}</option>
+			                    </select>
+			                </div>
+			            </div>
+			            <div class="form-group">
+			            	<div class="col-xs-12 col-sm-9">
+			            		<input type="submit" class="btn btn-primary pull-right" value="Add" />
+			            	</div>
+			            </div>
+			        </div>
+				</form>
+		    </div>
+		    <hr />
+		    <div class="row">
+		        <div class="col-sm-12">
+		        	<table class="config-tbl table table-condensed table-striped">
+						<thead>
+							<tr>
+								<th>Location</th>
+								<th>Blueprint?</th>
+								<th>Hostgroup</th>
+								<th>Config Parameter</th>
+								<th>Value</th>
+								<th>&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="(key,item) in configItems | orderBy:'loc'">
+								<td class="config-loc"><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-text="item.loc" e-required e-uib-typeahead="confLoc for confLoc in configLocations | filter:$viewValue | limitTo:8">{{item.loc}}</span></td>
+								<td><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-select="item.bprint" e-ng-options="bprint.id as bprint.name for bprint in bprintFormSelect">{{item.bprint}}</span></td>
+								<td><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-select="item.hg" e-ng-options="name as name for name in getFormHostGroups()">{{item.hg}}</span></td>
+								<td class="config-id"><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-text="item.id" e-required e-uib-typeahead="confId for confId in configIds | filter:$viewValue | limitTo:8">{{item.id}}</span></td>
+								<td class="config-val"><span onaftersave="updateBlueprintConfig(true)" buttons="no" editable-text="item.val">{{item.val || "empty"}}</span></td>
+								<td><button class="btn btn-xs btn-primary" ng-click="removeConfigItem(key)"><span class="glyphicon glyphicon-remove"></span></button></td>
+							</tr>
+						</tbody>
+					</table>
+		        </div>
+		    </div>
+		</div>
+	    
+	    <div class="tab-pane active" id="tab-blueprint">
+		    <div class="row">
+		    	<div class="col-sm-6 blueprint">
+		            <h3>Cluster-Blueprint <button class="pull-right btn btn-primary btn-xs" id="blueprint-res-json-clipboard" ng-click="copyToClipboard('#blueprint-res-json-clipboard')" data-clipboard-target="#blueprint-res-json">Copy</button></h3>
+		            <pre id="blueprint-res-json">{{blueprintJson}}</pre>
+		        </div>
+		        <div class="col-sm-6 blueprint">
+		            <h3>Hostgroups <button class="pull-right btn btn-primary btn-xs" id="hostgroup-res-json-clipboard" ng-click="copyToClipboard('#hostgroup-res-json-clipboard')" data-clipboard-target="#hostgroup-res-json">Copy</button></h3>
+		            <pre id="hostgroup-res-json">{{hostgroupJson}}</pre>
+		        </div>
+		    </div>
+		</div>
+	</div>
 </div>
+
+<!-- JS Load --> 
+<script type="text/javascript">
+    (function(){
+      new Clipboard("#blueprint-res-json-clipboard");
+      new Clipboard("#hostgroup-res-json-clipboard");
+    })();
+</script>
