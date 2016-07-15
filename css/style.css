@@ -3,13 +3,30 @@ body {
     overflow-x: hidden;
     background: #FFF;
     color: #676767;
-    position: relative;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     line-height: 1.42857143;
-    padding-bottom:15px;
+    /*padding-bottom:15px;*/
 }
 
+/* sticky footer styles */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #fff;
+  font-size:0.8em;
+}
+
+/* node and component styles */
 .service-box-color-preview {
     display: block;
     width: 10px;
@@ -229,5 +246,7 @@ body {
 .config-tbl .config-val {
   width:50%;
 }
+
+
 
 
