@@ -1281,7 +1281,7 @@ app.factory('Service', ['Component', function(Component){
      **/
     Service.prototype.addComponents = function(comps){
         for(comp in comps){
-            this.addComponent(comps[comp].id, comps[comp].name, comps[comp].shortname, comps[comp].blueprint);
+            this.addComponent(comps[comp].id, comps[comp].name, comps[comp].shortname, comps[comp].blueprint, comps[comp].ctype);
         }
     };
 
@@ -1291,14 +1291,14 @@ app.factory('Service', ['Component', function(Component){
      * @param {string} short name of this component
      * @returns True if successful
      **/
-    Service.prototype.addComponent = function(id, name, shortname, isBlueprintable){
+    Service.prototype.addComponent = function(id, name, shortname, isBlueprintable, ctype){
         if(!id || typeof(id) !== 'string'){
             console.warn('Invalid Component received');
             return false;
         }
 
         // add component
-        this.comps.push(new Component(id, this, name, shortname, isBlueprintable));
+        this.comps.push(new Component(id, this, name, shortname, isBlueprintable, ctype));
         return true;
     };
 
@@ -1348,7 +1348,7 @@ app.factory('Service', ['Component', function(Component){
  * Component Model
  **/
 app.factory('Component', function(){
-    function Component(id, service, name, shortname, isBlueprintable){
+    function Component(id, service, name, shortname, isBlueprintable, cctype){
         /* {string} unique id of this component */
         this.id = id;
         /* {string} Long name of this component */
@@ -1359,6 +1359,13 @@ app.factory('Component', function(){
         this.service = service;
         /* {boolean} true if this component is supported by blueprints */
         this.blueprint = isBlueprintable;
+        /* {string} ['s','w','m','o'] Type of component 
+            o=other (default)
+            w=worker
+            c=client
+            m=master
+        */
+        this.ctype = (['c','w','m','o'].indexOf(cctype) >= 0) ? cctype : 'o';
     }
 
     /**
@@ -1379,7 +1386,7 @@ app.factory('Component', function(){
      * @Returns an exported version of the component (format like in env.)
      **/
     Component.prototype.exportComp = function(){
-        return {'id': this.id, 'name': this.name , 'shortname': this.shortname};
+        return {'id': this.id, 'name': this.name , 'shortname': this.shortname, 'blueprint': this.blueprint, 'ctype': this.ctype};
     };
 
     return Component;
@@ -1648,8 +1655,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Ambari Metrics',
                 'shortname': 'AMS',
                 'components' : [
-                    {'id': 'metrics_collector', 'name': 'Metrics Collector' , 'shortname' : 'AMS_C', 'blueprint': true},
-                    {'id': 'metrics_monitor', 'name': 'Metrics Monitor' , 'shortname' : 'AMS_M', 'blueprint': true}
+                    {'id': 'metrics_collector', 'name': 'Metrics Collector' , 'shortname' : 'AMS_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'metrics_monitor', 'name': 'Metrics Monitor' , 'shortname' : 'AMS_M', 'blueprint': true, 'ctype': 'm'}
                 ]
             },
             'falcon' : {
@@ -1661,8 +1668,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Falcon',
                 'shortname': 'FAL',
                 'components' : [
-                    {'id': 'falcon_client', 'name': 'Falcon Client' , 'shortname': 'FAL_C', 'blueprint': true},
-                    {'id': 'falcon_server', 'name': 'Falcon Server' , 'shortname': 'FAL_S', 'blueprint': true}
+                    {'id': 'falcon_client', 'name': 'Falcon Client' , 'shortname': 'FAL_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'falcon_server', 'name': 'Falcon Server' , 'shortname': 'FAL_S', 'blueprint': true, 'ctype': 'm'}
                 ]
             },
             'flume' : {
@@ -1699,9 +1706,9 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'HBase',
                 'shortname': 'HB',
                 'components' : [
-                    {'id': 'hbase_client', 'name': 'Hbase Client' , 'shortname': 'HB_C', 'blueprint': true},
-                    {'id': 'hbase_master', 'name': 'Hbase Master' , 'shortname': 'HB_M', 'blueprint': true},
-                    {'id': 'hbase_regionserver', 'name': 'Hbase Regionserver' , 'shortname': 'HB_R', 'blueprint': true}
+                    {'id': 'hbase_client', 'name': 'Hbase Client' , 'shortname': 'HB_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'hbase_master', 'name': 'Hbase Master' , 'shortname': 'HB_M', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'hbase_regionserver', 'name': 'Hbase Regionserver' , 'shortname': 'HB_R', 'blueprint': true, 'ctype': 'w'}
                 ]
             },
             'hdfs' : {
@@ -1713,12 +1720,12 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'HDFS',
                 'shortname': 'HDFS',
                 'components' : [
-                    {'id': 'datanode', 'name': 'Datanode' , 'shortname': 'DN', 'blueprint': true},
-                    {'id': 'hdfs_client', 'name': 'Hdfs Client' , 'shortname': 'HDFS_C', 'blueprint': true},
-                    {'id': 'journalnode', 'name': 'Journalnode' , 'shortname': 'JN', 'blueprint': true},
-                    {'id': 'namenode', 'name': 'Namenode' , 'shortname': 'NN', 'blueprint': true},
-                    {'id': 'secondary_namenode', 'name': 'Secondary Namenode' , 'shortname': 'SNN', 'blueprint': true},
-                    {'id': 'zkfc', 'name': 'ZK Failover Controller' , 'shortname': 'ZKFC', 'blueprint': true}
+                    {'id': 'datanode', 'name': 'Datanode' , 'shortname': 'DN', 'blueprint': true, 'ctype': 'w'},
+                    {'id': 'hdfs_client', 'name': 'Hdfs Client' , 'shortname': 'HDFS_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'journalnode', 'name': 'Journalnode' , 'shortname': 'JN', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'namenode', 'name': 'Namenode' , 'shortname': 'NN', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'secondary_namenode', 'name': 'Secondary Namenode' , 'shortname': 'SNN', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'zkfc', 'name': 'ZK Failover Controller' , 'shortname': 'ZKFC', 'blueprint': true, 'ctype': 'm'}
                 ]
             },
             'kafka' : {
@@ -1742,7 +1749,7 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Kerberos',
                 'shortname': 'KERB',
                 'components' : [
-                    {'id': 'kerberos_client', 'name': 'Kerberos Client' , 'shortname': 'KERB_C', 'blueprint': false}
+                    {'id': 'kerberos_client', 'name': 'Kerberos Client' , 'shortname': 'KERB_C', 'blueprint': false, 'ctype': 'c'}
                 ]
             },
             'knox' : {
@@ -1766,8 +1773,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'MapReduce',
                 'shortname': 'MR',
                 'components' : [
-                    {'id': 'historyserver', 'name': 'Historyserver' , 'shortname': 'JHS', 'blueprint': true},
-                    {'id': 'mapreduce2_client', 'name' : 'Mapreduce2 Client', 'shortname': 'MR', 'blueprint': true}
+                    {'id': 'historyserver', 'name': 'Historyserver' , 'shortname': 'JHS', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'mapreduce2_client', 'name' : 'Mapreduce2 Client', 'shortname': 'MR', 'blueprint': true, 'ctype': 'c'}
                 ]
             },
             'oozie' : {
@@ -1779,8 +1786,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Oozie',
                 'shortname': 'OZ',
                 'components' : [
-                    {'id': 'oozie_client', 'name': 'Oozie Client' , 'shortname': 'OZ_C', 'blueprint': true},
-                    {'id': 'oozie_server', 'name': 'Oozie Server' , 'shortname': 'OZ_S', 'blueprint': true}
+                    {'id': 'oozie_client', 'name': 'Oozie Client' , 'shortname': 'OZ_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'oozie_server', 'name': 'Oozie Server' , 'shortname': 'OZ_S', 'blueprint': true, 'ctype': 'm'}
                 ]
             },
             'pig' : {
@@ -1792,7 +1799,7 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Pig',
                 'shortname': 'PIG',
                 'components' : [
-                    {'id': 'pig', 'name': 'Pig' , 'shortname': 'PIG', 'blueprint': true}
+                    {'id': 'pig', 'name': 'Pig' , 'shortname': 'PIG', 'blueprint': true, 'ctype': 'c'}
                 ]
             },
             'ranger' : {
@@ -1804,8 +1811,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Ranger',
                 'shortname': 'RG',
                 'components' : [
-                    {'id': 'ranger_admin', 'name': 'Ranger Admin' , 'shortname': 'RG_ADM', 'blueprint': false},
-                    {'id': 'ranger_usersync', 'name': 'Ranger Usersync' , 'shortname': 'RG_USR', 'blueprint': false}
+                    {'id': 'ranger_admin', 'name': 'Ranger Admin' , 'shortname': 'RG_ADM', 'blueprint': false, 'ctype': 'm'},
+                    {'id': 'ranger_usersync', 'name': 'Ranger Usersync' , 'shortname': 'RG_USR', 'blueprint': false, 'ctype': 'm'}
                 ]
             },
             'ranger_kms' : {
@@ -1817,7 +1824,7 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Ranger KMS',
                 'shortname': 'RGK',
                 'components' : [
-                    {'id': 'ranger_kms_server', 'name': 'Ranger KMS Server' , 'shortname': 'RG_KMS', 'blueprint': false}
+                    {'id': 'ranger_kms_server', 'name': 'Ranger KMS Server' , 'shortname': 'RG_KMS', 'blueprint': false, 'ctype': 'm'}
                 ]
             },
             'slider' : {
@@ -1841,8 +1848,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'spark',
                 'shortname': 'SPR',
                 'components' : [
-                    {'id': 'spark_client', 'name': 'Spark Client' , 'shortname': 'SPR_C', 'blueprint': true},
-                    {'id': 'spark_jobhistoryserver', 'name': 'Spark Jobhistoryserver' , 'shortname': 'SPR_HS', 'blueprint': true}
+                    {'id': 'spark_client', 'name': 'Spark Client' , 'shortname': 'SPR_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'spark_jobhistoryserver', 'name': 'Spark Jobhistoryserver' , 'shortname': 'SPR_HS', 'blueprint': true, 'ctype': 'm'}
                 ]
             },
             'sqoop' : {
@@ -1854,7 +1861,7 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Sqoop',
                 'shortname': 'SQP',
                 'components' : [
-                    {'id': 'sqoop', 'name': 'Sqoop' , 'shortname': 'SQP', 'blueprint': true}
+                    {'id': 'sqoop', 'name': 'Sqoop' , 'shortname': 'SQP', 'blueprint': true, 'ctype': 'c'}
                 ]
             },
             'storm' : {
@@ -1866,10 +1873,10 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Storm',
                 'shortname': 'STR',
                 'components' : [
-                    {'id': 'drpc_server', 'name': 'Drpc Server' , 'shortname': 'DRPC', 'blueprint': true},
-                    {'id': 'nimbus', 'name': 'Nimbus' , 'shortname': 'NBM', 'blueprint': true},
-                    {'id': 'storm_ui_server', 'name': 'Storm UI Server' , 'shortname': 'STR_UI', 'blueprint': true},
-                    {'id': 'supervisor', 'name': 'Supervisor' , 'shortname': 'SPS', 'blueprint': true}
+                    {'id': 'drpc_server', 'name': 'Drpc Server' , 'shortname': 'DRPC', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'nimbus', 'name': 'Nimbus' , 'shortname': 'NBM', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'storm_ui_server', 'name': 'Storm UI Server' , 'shortname': 'STR_UI', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'supervisor', 'name': 'Supervisor' , 'shortname': 'SPS', 'blueprint': true, 'ctype': 'w'}
                 ]
             },
             'tez' : {
@@ -1881,7 +1888,7 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Tez',
                 'shortname': 'TEZ',
                 'components' : [
-                    {'id': 'tez_client', 'name': 'Tez Client' , 'shortname': 'TEZ', 'blueprint': true}
+                    {'id': 'tez_client', 'name': 'Tez Client' , 'shortname': 'TEZ', 'blueprint': true, 'ctype': 'c'}
                 ]
             },
             'yarn' : {
@@ -1893,10 +1900,10 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Yarn',
                 'shortname': 'YARN',
                 'components' : [
-                    {'id': 'app_timeline_server', 'name': 'App Timeline Server' , 'shortname': 'ATS', 'blueprint': true},
-                    {'id': 'nodemanager', 'name': 'Nodemanager' , 'shortname': 'NM', 'blueprint': true},
-                    {'id': 'resourcemanager', 'name': 'Resourcemanager' , 'shortname': 'RM', 'blueprint': true},
-                    {'id': 'yarn_client', 'name': 'Yarn Client' , 'shortname': 'YARN_C', 'blueprint': true}
+                    {'id': 'app_timeline_server', 'name': 'App Timeline Server' , 'shortname': 'ATS', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'nodemanager', 'name': 'Nodemanager' , 'shortname': 'NM', 'blueprint': true, 'ctype': 'w'},
+                    {'id': 'resourcemanager', 'name': 'Resourcemanager' , 'shortname': 'RM', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'yarn_client', 'name': 'Yarn Client' , 'shortname': 'YARN_C', 'blueprint': true, 'ctype': 'c'}
                 ]
             },
             'zookeeper' : {
@@ -1908,8 +1915,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Zookeeper',
                 'shortname': 'ZK',
                 'components' : [
-                    {'id': 'zookeeper_client', 'name': 'Zookeeper Client' , 'shortname': 'ZK_C', 'blueprint': true},
-                    {'id': 'zookeeper_server', 'name': 'Zookeeper Server' , 'shortname': 'ZK_S', 'blueprint': true}
+                    {'id': 'zookeeper_client', 'name': 'Zookeeper Client' , 'shortname': 'ZK_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'zookeeper_server', 'name': 'Zookeeper Server' , 'shortname': 'ZK_S', 'blueprint': true, 'ctype': 'm'}
                 ]
             },
             'hive' : {
@@ -1921,12 +1928,12 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Hive',
                 'shortname': 'HIVE',
                 'components' : [
-                    {'id': 'hcat', 'name': 'Hcat' , 'shortname': 'HCAT', 'blueprint': true},
-                    {'id': 'hive_client', 'name': 'Hive Client' , 'shortname': 'HIVE_C', 'blueprint': true},
-                    {'id': 'hive_metastore', 'name': 'Hive Metastore' , 'shortname': 'HIVE_MS', 'blueprint': true},
-                    {'id': 'hive_server', 'name': 'Hive Server' , 'shortname': 'HIVE_S', 'blueprint': true},
-                    {'id': 'mysql_server', 'name': 'Mysql Server' , 'shortname': 'MYSQL', 'blueprint': true},
-                    {'id': 'webhcat_server', 'name': 'Webhcat Server' , 'shortname': 'WHCAT', 'blueprint': true}
+                    {'id': 'hcat', 'name': 'Hcat' , 'shortname': 'HCAT', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'hive_client', 'name': 'Hive Client' , 'shortname': 'HIVE_C', 'blueprint': true, 'ctype': 'c'},
+                    {'id': 'hive_metastore', 'name': 'Hive Metastore' , 'shortname': 'HIVE_MS', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'hive_server', 'name': 'Hive Server' , 'shortname': 'HIVE_S', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'mysql_server', 'name': 'Mysql Server' , 'shortname': 'MYSQL', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'webhcat_server', 'name': 'Webhcat Server' , 'shortname': 'WHCAT', 'blueprint': true, 'ctype': 'm'}
                 ]
             },
             'zeppelin' : {
@@ -1950,7 +1957,7 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Solr',
                 'shortname': 'SOLR',
                 'components' : [
-                    {'id': 'solr_master', 'name': 'Solr Master' , 'shortname': 'SOLR', 'blueprint': false}
+                    {'id': 'solr_master', 'name': 'Solr Master' , 'shortname': 'SOLR', 'blueprint': false, 'ctype': 'm'}
                 ]
             },
             'hue' : {
@@ -1975,8 +1982,8 @@ app.service('DefEnvironment', function(Environment) {
                 'name' : 'Ambari',
                 'shortname': 'AMB',
                 'components' : [
-                    {'id': 'ambari_server', 'name': 'Ambari Server' , 'shortname': 'AMB_S', 'blueprint': true},
-                    {'id': 'ambari_agent', 'name': 'Ambari Agent' , 'shortname': 'AMB_AG', 'blueprint': false}
+                    {'id': 'ambari_server', 'name': 'Ambari Server' , 'shortname': 'AMB_S', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'ambari_agent', 'name': 'Ambari Agent' , 'shortname': 'AMB_AG', 'blueprint': false, 'ctype': 'w'}
                 ]
             },
             'custom' : {
