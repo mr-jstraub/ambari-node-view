@@ -1,4 +1,7 @@
 <div class="container">
+    <div class="pull-right">
+        <button class="btn btn-primary" ng-click="editCluster()">Edit Cluster</button>
+    </div>
     <div class="tab-content">
         <div class="tab-pane" id="cluster-comp-view">
             <h1>{{cluster.name}} ({{cluster.version}})</h1>
@@ -78,7 +81,7 @@
                             <span ng-repeat="service in services = node.getNodeServices()">
                                 {{config.useFullnames ? service.name : service.shortname}}{{$last ? '' : ','}}
                             </span>
-                            
+
                         </div>
                     </div>
                 </div>

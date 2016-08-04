@@ -493,7 +493,7 @@ app.controller('BlueprintController', ['$scope', 'DefEnvironment', 'MainCluster'
 /**
  * Cluster-Build Controller
  **/
-app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'BuildCluster', 'Blueprint', function($scope, DefEnvironment, MainCluster, BuildCluster, Blueprint){
+app.controller('BuildController', ['$scope', '$location', 'DefEnvironment', 'MainCluster', 'BuildCluster', 'Blueprint', function($scope, $location, DefEnvironment, MainCluster, BuildCluster, Blueprint){
     /* {int} maxNodes Maximum number of nodes allowed */
     $scope.maxNodes = 1000;
     /* {String} defHostname Default hostname of node */
@@ -535,6 +535,8 @@ app.controller('BuildController', ['$scope', 'DefEnvironment', 'MainCluster', 'B
 
         // import cluster
         MainCluster.importBuiltCluster(clusterNodes, $scope.clusterMeta.name, $scope.clusterMeta.stack, $scope.clusterMeta.isKerberized);
+
+        $location.path('/');
     };
 
     /**
@@ -711,13 +713,40 @@ app.controller('MainController', ['$scope', '$route', '$routeParams', '$location
 /**
  * NodeView - Controller
  **/
-app.controller('NodeViewController', ['$scope', 'DefEnvironment', 'MainCluster', function($scope, DefEnvironment, MainCluster){
+app.controller('NodeViewController', ['$scope', '$location', 'DefEnvironment', 'MainCluster', 'BuildCluster', function($scope, $location, DefEnvironment, MainCluster, BuildCluster){
     /* {Cluster} Reference to cluster object */
     $scope.cluster = MainCluster;
     /* {Service[]} List of services */
     $scope.services = DefEnvironment.services;
     /* {Component[]} List of components */
     $scope.comps = DefEnvironment.comps;
+
+    /* Convert cluster object to buildcluster format for editing*/
+    /* TODO: BETA */
+    $scope.editCluster = function(){
+        BuildCluster.clusterMeta['name'] =$scope.cluster.name;
+        BuildCluster.clusterMeta['isKerberized'] = ($scope.cluster == 'Kerberos') ? 'true' : 'false';
+        var version = ($scope.cluster.version) ? $scope.cluster.version.split('-') : [];
+        BuildCluster.clusterMeta['stack'] = (version.length >= 1) ? version[0] : 'HDP';
+        BuildCluster.clusterMeta['stackVersion'] = (version.length >= 2) ? version[1] : '2.3';
+
+        // prepare nodes
+        BuildCluster.cluster = [];
+        for(var k in $scope.cluster.nodes){
+            var node = $scope.cluster.nodes[k];
+            var bnode = {};
+            bnode['cardinality'] = node.card;
+            bnode['name'] = (node.hostnames.length > 0) ? node.hostnames[0] : 'node.example.com';
+            bnode['comps'] = [];
+            for(var ck in node.comps){
+                var comp = node.comps[ck];
+                bnode['comps'].push({'name':comp['name'], 'shortname': comp['shortname'], 'id': comp['id'], 'baseColor': comp.service.baseColor, 'fontColor': comp.service.fontColor});
+            }
+            BuildCluster.cluster.push(bnode);
+        }
+
+        $location.path('/build');
+    };
 
     // TODO 
     /*
