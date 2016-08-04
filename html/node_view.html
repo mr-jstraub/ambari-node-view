@@ -22,6 +22,24 @@
             </div>  
         </div>
 
+        <div class="tab-pane" id="cluster-comp-classic-view">
+            <h1>{{cluster.name}} ({{cluster.version}})</h1>
+            <div class="row freefloat">
+                <div class="node-ff" ng-repeat="node in cluster.nodes">
+                    <div class="box">
+                        <div class="box-header classic">
+                            <span>{{node.getHostname()}}</span>
+                            <span class="cardinality">(#{{node.getCardinality()}})</span>
+                        </div>
+                        <div class="box-main">
+                            <span ng-repeat="comp in node.comps | orderBy:'service.group_a'">
+                                {{config.useFullnames ? comp.name : comp.shortname}}{{$last ? '' : ','}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+        </div>
 
         <div class="tab-pane active" id="cluster-services-view">
         <!-- service view -->
@@ -46,6 +64,26 @@
             </div>
         </div>
 
+        <div class="tab-pane" id="cluster-services-classic-view">
+        <!-- service view -->
+            <h1>{{cluster.name}} ({{cluster.version}})</h1>
+            <div class="row freefloat">
+                <div class="node-ff" ng-repeat="node in cluster.nodes">
+                    <div class="box">
+                        <div class="box-header classic">
+                            <span>{{node.getHostname()}}</span>
+                            <span class="cardinality">(#{{node.getCardinality()}})</span>
+                        </div>
+                        <div class="box-main">
+                            <span ng-repeat="service in services = node.getNodeServices()">
+                                {{config.useFullnames ? service.name : service.shortname}}{{$last ? '' : ','}}
+                            </span>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="tab-pane" id="cluster-list-view">
         <!-- list view -->

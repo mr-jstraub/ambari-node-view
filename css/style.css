@@ -83,6 +83,11 @@ body {
   background-color: #f5f5f5;
 }
 
+.box-header.classic {
+  background-color:#ECF0F1;
+  font-weight:bold;
+}
+
 .box-header-editable a {
   margin-left:4px;
 }
@@ -174,6 +179,20 @@ body {
     margin-right: 0;
 }
 
+.row.freefloat {
+  -moz-column-width: 20em;
+  -webkit-column-width: 20em;
+  -moz-column-gap: .5em;
+  -webkit-column-gap: .5em; 
+}
+
+.freefloat .node-ff {
+  display: inline-block;
+  margin:  .5em;
+  padding:  0; 
+  width:98%;
+}
+
 /*Cluster Build*/
 .toolbar {
     min-height:60px;
@@ -246,7 +265,4 @@ body {
 .config-tbl .config-val {
   width:50%;
 }
-
-
-
 
