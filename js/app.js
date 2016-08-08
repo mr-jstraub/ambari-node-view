@@ -498,6 +498,8 @@ app.controller('BuildController', ['$scope', '$location', 'DefEnvironment', 'Mai
     $scope.maxNodes = 1000;
     /* {String} defHostname Default hostname of node */
     $scope.defHostname = 'node.example.com';
+    /* {String} defZone Default zone of node*/
+    $scope.defZone = 'no zone';
     /* {Service} curService Currently selected service */
     $scope.curService = null;
     /* {int} curBundle Currently selected bundle index */
@@ -524,7 +526,7 @@ app.controller('BuildController', ['$scope', '$location', 'DefEnvironment', 'Mai
         for(var k in $scope.buildnodes){
             var node = $scope.buildnodes[k];
             var nodeHNames = $scope.genHostnames(node['name'], node['cardinality']);
-            clusterNodes.push({'hostnames': nodeHNames, 'comps': node.comps});
+            clusterNodes.push({'hostnames': nodeHNames, 'comps': node.comps, 'zone': node['zone']});
         }
 
         // prepare stack
@@ -738,6 +740,7 @@ app.controller('NodeViewController', ['$scope', '$location', 'DefEnvironment', '
             bnode['cardinality'] = node.card;
             bnode['name'] = (node.hostnames.length > 0) ? node.hostnames[0] : 'node.example.com';
             bnode['comps'] = [];
+            bnode['zone'] = node.zone;
             for(var ck in node.comps){
                 var comp = node.comps[ck];
                 bnode['comps'].push({'name':comp['name'], 'shortname': comp['shortname'], 'id': comp['id'], 'baseColor': comp.service.baseColor, 'fontColor': comp.service.fontColor});
@@ -904,6 +907,7 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
         for(var nk in data){
             var node = data[nk];
             var nodeHNames = node['hostnames'];
+            var nodeZone = '';
             var nodeComps = [];
 
             // prepare node components
@@ -915,8 +919,12 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
                 }                  
             }
 
+            if(node['zone'] && node['zone'] != ''){
+                nodeZone = node['zone'];
+            }
+
             // add new Node
-            nodeIdx = this.addNode(nodeHNames, nodeComps);
+            nodeIdx = this.addNode(nodeHNames, nodeComps, nodeZone);
             if(nodeIdx < 0){
                 console.warn('Error creating new node');
                 continue;
@@ -973,12 +981,17 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
             var nodeData = clusterJson.hosts_info[key];
             var nodeIdx = null;
             var nodeComps = [];
+            var nodeZone = '';
             var nodeChksum = "";
 
             // validate data
             if(!nodeData || typeof(nodeData['host_name']) !== 'string'){
                 console.warn('wrong type addNode');
                 continue
+            }
+
+            if(nodeData['zone'] && nodeData['zone'] != ''){
+                nodeZone = nodeData['zone'];
             }
 
             // prepare components
@@ -992,7 +1005,7 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
             }
 
             // calc checksum
-            nodeChksum = this.calcCompChecksum(nodeComps);
+            nodeChksum = this.calcNodeChksum(nodeComps, nodeZone);
 
             // check whether calc. checksum is already available
             var isNodeDuplicate = false;
@@ -1013,7 +1026,7 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
             }
 
             // add new Node
-            nodeIdx = this.addNode([nodeData['host_name']], nodeComps);
+            nodeIdx = this.addNode([nodeData['host_name']], nodeComps, nodeZone);
 
             if(nodeIdx < 0){
                 console.warn('Error creating new node');
@@ -1042,9 +1055,10 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
      * Adds a new node  to the cluster
      * @param {String[]} hostname of the new node
      * @param {Component[]} comps List of components
+     * @param {String} firewall or network zone (optional)
      * @returns Index of added node or -1
      **/
-    Cluster.prototype.addNode = function(hostname, comps){
+    Cluster.prototype.addNode = function(hostname, comps, nzone){
         // validate data
         if(!hostname || typeof(hostname) !== 'object'){
             console.error('wrong type addNode');
@@ -1052,7 +1066,7 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
         }
 
         // add new node
-        var node = new Node(Node.newId(), hostname);
+        var node = new Node(Node.newId(), hostname, nzone);
         if(!node){
             return -1;
         }
@@ -1112,6 +1126,20 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
         return compIds.sort().toString();
     };
 
+    /**
+     * Calculates the checksum of the given comps 
+     * and the network zone.
+     * @param {Component[]} Array of components
+     * @param {String} network zone
+     * @returns calculated checksum
+     */
+    Cluster.prototype.calcNodeChksum = function(comps, zone){
+        if(!zone){
+            zone = '';
+        }
+        return zone + '#' + this.calcCompChecksum(comps);
+    };
+
     return Cluster;
 }]);
 
@@ -1123,7 +1151,7 @@ app.factory('Cluster', ['Config', 'Node', 'DefEnvironment', 'Component', functio
  * and have a cardinality > 1
  **/
 app.factory('Node', ['Component', function(Component){
-    function Node(nodeId, hostnames){
+    function Node(nodeId, hostnames, nzone){
         /* {string} Unique id of this node */
         this.id = nodeId;
         /* @Deprecated {string} FQDN of the node */
@@ -1137,6 +1165,8 @@ app.factory('Node', ['Component', function(Component){
         /* {int} card Cardinality of this node, this should be 
         identical to the number of elems in hostnames */
         this.card = (hostnames.length > 0) ? hostnames.length : 1;
+        /* {string} [zone] network or firewall zone (optional) */
+        this.zone = (nzone && nzone != '') ? nzone : '';
     }
 
     Node.CONF = {

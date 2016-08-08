@@ -90,6 +90,7 @@
                             <div class="box-header-editable">
                                 <a href="#" buttons="no" editable-text="node.name" e-required e-class="editable-name">{{ node.name || defHostname }}</a>
                                 <a href="#" buttons="no" editable-number="node.cardinality" onbeforesave="checkCardinality($data, node.cardinality)" e-class="editable-card">(#{{ node.cardinality || 1 }})</a>
+                                <a href="#" buttons="no" editable-text="node.zone" e-class="editable-zone">{{ node.zone || defZone }}</a>
                             </div>
                             
                         </div>
