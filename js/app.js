@@ -718,11 +718,18 @@ app.controller('MainController', ['$scope', '$route', '$routeParams', '$location
 app.controller('NodeViewController', ['$scope', '$location', 'DefEnvironment', 'MainCluster', 'BuildCluster', function($scope, $location, DefEnvironment, MainCluster, BuildCluster){
     /* {Cluster} Reference to cluster object */
     $scope.cluster = MainCluster;
+    /* {Object} Cluster nodes */
+    $scope.clusterNodes = MainCluster.nodes;
+    /* {String} Cluster name */
+    $scope.clusterName = MainCluster.name;
+    /* {String} Cluster version */
+    $scope.clusterVersion = MainCluster.version;
     /* {Service[]} List of services */
     $scope.services = DefEnvironment.services;
     /* {Component[]} List of components */
     $scope.comps = DefEnvironment.comps;
-
+    // reset showZones feature
+    $scope.config.showZones = false;
     /* Convert cluster object to buildcluster format for editing*/
     /* TODO: BETA */
     $scope.editCluster = function(){

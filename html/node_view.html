@@ -4,9 +4,9 @@
     </div>
     <div class="tab-content">
         <div class="tab-pane" id="cluster-comp-view">
-            <h1>{{cluster.name}} ({{cluster.version}})</h1>
+            <h1>{{clusterName}} ({{clusterVersion}})</h1>
             <div class="row">
-                <div class="col-md-6" ng-repeat="node in cluster.nodes">
+                <div class="col-md-6" ng-repeat="node in clusterNodes">
                     <div class="box">
                         <div class="box-main">
                             <div class="cbox" 
@@ -26,9 +26,9 @@
         </div>
 
         <div class="tab-pane" id="cluster-comp-classic-view">
-            <h1>{{cluster.name}} ({{cluster.version}})</h1>
+            <h1>{{clusterName}} ({{clusterVersion}})</h1>
             <div class="row freefloat">
-                <div class="node-ff" ng-repeat="node in cluster.nodes">
+                <div class="node-ff" ng-repeat="node in clusterNodes">
                     <div class="box">
                         <div class="box-header classic">
                             <span>{{node.getHostname()}}</span>
@@ -46,9 +46,9 @@
 
         <div class="tab-pane active" id="cluster-services-view">
         <!-- service view -->
-            <h1>{{cluster.name}} ({{cluster.version}})</h1>
+            <h1>{{clusterName}} ({{clusterVersion}})</h1>
             <div class="row">
-                <div class="col-md-6" ng-repeat="node in cluster.nodes">
+                <div class="col-md-6" ng-repeat="node in clusterNodes">
                     <div class="box">
                         <div class="box-main">
                             <div class="cbox" 
@@ -60,7 +60,7 @@
                         </div>
                         <div class="box-footer">
                             <span>{{node.getHostname()}}</span>
-                            <span class="cardinality">(#{{node.getCardinality()}})</span>
+                            <span class="cardinality">(#{{node.getCardinality()}}) - {{node.zone}}</span>
                         </div>
                     </div>
                 </div>
@@ -69,9 +69,9 @@
 
         <div class="tab-pane" id="cluster-services-classic-view">
         <!-- service view -->
-            <h1>{{cluster.name}} ({{cluster.version}})</h1>
+            <h1>{{clusterName}} ({{clusterVersion}})</h1>
             <div class="row freefloat">
-                <div class="node-ff" ng-repeat="node in cluster.nodes">
+                <div class="node-ff" ng-repeat="node in clusterNodes">
                     <div class="box">
                         <div class="box-header classic">
                             <span>{{node.getHostname()}}</span>
@@ -90,10 +90,10 @@
 
         <div class="tab-pane" id="cluster-list-view">
         <!-- list view -->
-            <h1>{{cluster.name}} ({{cluster.version}})</h1>
+            <h1>{{clusterName}} ({{clusterVersion}})</h1>
             <table class="table table-striped tbl-list-view">
                 <tbody>
-                    <tr ng-repeat="node in cluster.nodes">
+                    <tr ng-repeat="node in clusterNodes">
                         <td>
                             <span ng-repeat="hostname in node.hostnames">
                                 {{hostname}}

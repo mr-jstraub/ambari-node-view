@@ -48,6 +48,7 @@
           -->
           
           <ul class="nav navbar-nav navbar-right" ng-show="$location.path()=='/'">
+            <li><p class="navbar-text"><label><input type="checkbox" name="showZones" ng-model="config.showZones" />&nbsp;<strong>show Zones</strong></label></p></li>
             <li><p class="navbar-text"><strong>View:&nbsp;</strong></p></li>
             <li><button class="btn btn-primary navbar-btn" href="#cluster-services-view" data-toggle="tab">Service</button></li>
             <li><button class="btn btn-primary navbar-btn" href="#cluster-services-classic-view" data-toggle="tab">Service (Classic)</button></li>
