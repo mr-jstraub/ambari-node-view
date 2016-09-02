@@ -719,7 +719,7 @@ app.controller('NodeViewController', ['$scope', '$location', 'DefEnvironment', '
     /* {Cluster} Reference to cluster object */
     $scope.cluster = MainCluster;
     /* {Object} Cluster nodes */
-    $scope.clusterNodes = MainCluster.nodes;
+    $scope.clusterNodes = {'none': MainCluster.nodes};
     /* {String} Cluster name */
     $scope.clusterName = MainCluster.name;
     /* {String} Cluster version */
@@ -730,6 +730,7 @@ app.controller('NodeViewController', ['$scope', '$location', 'DefEnvironment', '
     $scope.comps = DefEnvironment.comps;
     // reset showZones feature
     $scope.config.showZones = false;
+
     /* Convert cluster object to buildcluster format for editing*/
     /* TODO: BETA */
     $scope.editCluster = function(){
@@ -757,6 +758,30 @@ app.controller('NodeViewController', ['$scope', '$location', 'DefEnvironment', '
 
         $location.path('/build');
     };
+
+    /**
+     * Groups nodes by their zone
+     **/
+    function groupNodesByZone(nds){
+        if(!nds) return {'none': MainCluster.nodes};
+        var zones = {};
+        // group nodes
+        for(var k in nds){
+            var node = nds[k];
+            var zone = (node.zone != '') ? node.zone : 'None';
+            if(zone in zones){
+                zones[zone].push(node);
+            }else{
+                zones[zone] = [node];
+            }
+        }
+        return zones;
+    }
+
+    // watch for changes in the showZones config
+    $scope.$watch('config.showZones', function() {
+        $scope.clusterNodes = ($scope.config.showZones === true) ? groupNodesByZone(MainCluster.nodes) : {'none': MainCluster.nodes};
+    }, true);
 
     // TODO 
     /*

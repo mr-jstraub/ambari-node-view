@@ -266,3 +266,9 @@ body {
   width:50%;
 }
 
+.row.zone {
+  border:2px solid #ccc;
+  margin: 12px;
+  background-color: #fdfdfd;
+}
+
