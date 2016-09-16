@@ -1894,6 +1894,19 @@ app.service('DefEnvironment', function(Environment) {
                     {'id': 'mapreduce2_client', 'name' : 'Mapreduce2 Client', 'shortname': 'MR', 'blueprint': true, 'ctype': 'c'}
                 ]
             },
+            'nifi' : {
+                'group_a' : 22,
+                'group_b' : 'Dataflow',
+                'group_c' : '',
+                'base_color' : '#728e9b',
+                'font_color' : 'white',
+                'name' : 'Nifi',
+                'shortname': 'NIFI',
+                'components' : [
+                    {'id': 'nifi_master', 'name': 'Nifi Server' , 'shortname': 'NIFI', 'blueprint': false, 'ctype': 'm'},
+                    {'id': 'nifi_ca', 'name': 'Nifi CA' , 'shortname': 'NIFI_CA', 'blueprint': false, 'ctype': 'w'}
+                ]
+            },
             'oozie' : {
                 'group_a' : 11,
                 'group_b' : 'Processing',
