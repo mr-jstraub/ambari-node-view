@@ -1737,6 +1737,19 @@ app.factory('ConfigItem', function(){
 
 app.service('DefEnvironment', function(Environment) {
     var _defaultEnvJson = {
+            'ambari_infra' : {
+                'group_a' : 32,
+                'group_b' : 'Management',
+                'group_c' : '',
+                'base_color' : '#FE2E4B',
+                'font_color' : 'white',
+                'name' : 'Ambari Infra',
+                'shortname': 'AMB_INF',
+                'components' : [
+                    {'id': 'infra_solr_client', 'name': 'Infra Solr Client' , 'shortname' : 'INF_SC', 'blueprint': false, 'ctype': 'c'},
+                    {'id': 'infra_solr', 'name': 'Infra Solr' , 'shortname' : 'INF_S', 'blueprint': false, 'ctype': 'm'}
+                ]
+            },
             'ambari_metrics' : {
                 'group_a' : 32,
                 'group_b' : 'Monitoring',
@@ -1748,6 +1761,19 @@ app.service('DefEnvironment', function(Environment) {
                 'components' : [
                     {'id': 'metrics_collector', 'name': 'Metrics Collector' , 'shortname' : 'AMS_C', 'blueprint': true, 'ctype': 'c'},
                     {'id': 'metrics_monitor', 'name': 'Metrics Monitor' , 'shortname' : 'AMS_M', 'blueprint': true, 'ctype': 'm'}
+                ]
+            },
+            'atlas' : {
+                'group_a' : 38,
+                'group_b' : 'Governance',
+                'group_c' : '',
+                'base_color' : 'green',
+                'font_color' : 'white',
+                'name' : 'Atlas',
+                'shortname': 'ATLS',
+                'components' : [
+                    {'id': 'atlas_client', 'name': 'Atlas Client' , 'shortname' : 'ATLS_C', 'blueprint': false, 'ctype': 'c'},
+                    {'id': 'atlas_server', 'name': 'Atlas Server' , 'shortname' : 'ATLS_M', 'blueprint': false, 'ctype': 'm'}
                 ]
             },
             'falcon' : {
@@ -1940,7 +1966,10 @@ app.service('DefEnvironment', function(Environment) {
                 'shortname': 'SPR',
                 'components' : [
                     {'id': 'spark_client', 'name': 'Spark Client' , 'shortname': 'SPR_C', 'blueprint': true, 'ctype': 'c'},
-                    {'id': 'spark_jobhistoryserver', 'name': 'Spark Jobhistoryserver' , 'shortname': 'SPR_HS', 'blueprint': true, 'ctype': 'm'}
+                    {'id': 'spark_jobhistoryserver', 'name': 'Spark Jobhistoryserver' , 'shortname': 'SPR_HS', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'spark_thriftserver', 'name': 'Spark Thrift Server' , 'shortname': 'SPR_TS', 'blueprint': true, 'ctype': 'm'},
+                    {'id': 'livy_server', 'name': 'Spark Livy Server' , 'shortname': 'SPR_LS', 'blueprint': true, 'ctype': 'm'}
+
                 ]
             },
             'sqoop' : {
@@ -2031,8 +2060,8 @@ app.service('DefEnvironment', function(Environment) {
                 'group_a' : 34,
                 'group_b' : 'Visualization',
                 'group_c' : '',
-                'base_color' : 'lightgreen',
-                'font_color' : '',
+                'base_color' : '#3071a9',
+                'font_color' : 'white',
                 'name' : 'Zepplin',
                 'shortname': 'ZPLN',
                 'components' : [
