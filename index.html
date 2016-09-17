@@ -3,9 +3,9 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title>Cluster - Node View</title>
-    <link rel="stylesheet" href="../css/bootstrap.css" type="text/css" />
-    <link rel="stylesheet" href="../css/style.css" type="text/css" />
-    <link rel="stylesheet" href="../css/xeditable.css">
+    <link rel="stylesheet" href="bcomps/bootstrap/dist/css/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/style.css" type="text/css" />
+    <link rel="stylesheet" href="bcomps/angular-xeditable/dist/css/xeditable.min.css" type="text/css" />
 </head>
 <body ng-controller="MainController as main">
 
@@ -76,15 +76,17 @@
       </div>
     </footer>
 
-    <!-- Load JS -->
-    <script type="text/javascript" src="../js/jquery.min.js"></script>
-    <script type="text/javascript" src="../js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../js/angular.js"></script>
-    <script type="text/javascript" src="../js/angular-route.js"></script>
-    <script type="text/javascript" src="../js/angular-dragdrop.js"></script>
-    <script type="text/javascript" src="../js/xeditable.js"></script>
-    <script type="text/javascript" src="../js/ui-bootstrap.min.js"></script>
-    <script type="text/javascript" src="../js/clipboard.min.js"></script>
-    <script type="text/javascript" src="../js/app.js"></script>
+    <!-- bootstrap and jquery -->
+    <script src="bcomps/jquery/dist/jquery.min.js"></script>
+    <script src="bcomps/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- Angular -->
+    <script src="bcomps/angular/angular.min.js"></script>
+    <script src="bcomps/angular-route/angular-route.min.js"></script>
+    <script src="bcomps/angular-drag-and-drop-lists/angular-drag-and-drop-lists.js"></script>
+    <script src="bcomps/angular-xeditable/dist/js/xeditable.js"></script>
+    <script src="bcomps/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+    <script src="bcomps/clipboard/dist/clipboard.min.js"></script>
+    <script src="app/app.js"></script>
+
 </body>
 </html>

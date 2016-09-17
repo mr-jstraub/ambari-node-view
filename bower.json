@@ -1,0 +1,21 @@
+{
+  "name": "node_view",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bcomps",
+    "comps/",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4.0",
+    "angular-route": "~1.4.0",
+    "angular-bootstrap": "0.14.3",
+    "bootstrap": "=3.3.4",
+    "angular-drag-and-drop-lists": "v1.3.0",
+    "clipboard": "v1.5.5",
+    "angular-xeditable": "~0.1.8"
+  }
+}

@@ -3,7 +3,7 @@
  * This app exports parts of the blueprint from the Ambari API
  * in order to visualize the setup.
  *
- * Version: 0.3.0 (Beta)
+ * Version: 0.5.0 (Beta)
  * Author: Jonas Straub 
  */
 
@@ -18,40 +18,40 @@ app.run(function(editableOptions, editableThemes) {
 app.config(function($routeProvider) {
     $routeProvider
     .when('/', {
-        templateUrl: 'node_view.html',
+        templateUrl: 'html/node_view.html',
         controller: 'NodeViewController as nodeCtrl'
     })
     .when('/legend', {
-        templateUrl: 'legend.html',
+        templateUrl: 'html/legend.html',
         controller: 'NodeViewController as nodeCtrl'
     })
     .when('/build', {
-        templateUrl: 'cluster_build.html',
+        templateUrl: 'html/cluster_build.html',
         controller: 'BuildController as buildCtrl'
     })
     .when('/blueprint', {
-        templateUrl: 'blueprint.html',
+        templateUrl: 'html/blueprint.html',
         controller: 'BlueprintController as bpCtrl'
     })
     .when('/settings/services', {
-        templateUrl: 'settings_services.html',
+        templateUrl: 'html/settings_services.html',
         controller: 'EditEnvController as editEnvCtrl'
     })
     .when('/settings/components', {
-        templateUrl: 'settings_components.html',
+        templateUrl: 'html/settings_components.html',
         controller: 'EditEnvController as editEnvCtrl'
     })
     .when('/about', {
-        templateUrl: 'about.html'
+        templateUrl: 'html/about.html'
     })
     .when('/help', {
-        templateUrl: 'about.html'
+        templateUrl: 'html/about.html'
     })
     .when('/settings/download', {
-        templateUrl: 'download_exporter.html'
+        templateUrl: 'html/download_exporter.html'
     })
     .when('/settings/importexport', {
-        templateUrl: 'importexport.html',
+        templateUrl: 'html/importexport.html',
         controller: 'ImportExportController as imexCtrl'
     })
     .otherwise({

@@ -1,4 +1,9 @@
 .idea
-_archive/
+_archive
 _screens_local
 _dummy
+.DS_Store
+/tmp/
+*.log
+/node_modules/
+bcomps/
