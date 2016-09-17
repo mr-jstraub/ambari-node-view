@@ -39,4 +39,4 @@ You can change the naming, grouping and coloring of services and components by g
 #Examples
 See [screens](https://github.com/mr-jstraub/ambari_node_view/tree/master/screens) folder for some sample screenshots :)
 
-![Service Overview](/screens/cluster_service_overview.png?raw=true)
+![Service Overview](/_screens/cluster_service_overview.png?raw=true)
