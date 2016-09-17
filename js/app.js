@@ -1247,6 +1247,21 @@ app.factory('Node', ['Component', function(Component){
     };
 
     /**
+     * Adds multiple physical hosts to this node. 
+     * This increases the cardinality by the number of hosts!
+     * @param {String[]} hostnames Hostnames to be added
+     */
+    Node.prototype.addHosts = function(hostnames){
+        if(!hostnames || hostnames.length <= 0){
+            console.warn('Cannot add hosts to node, invalid hostnames!');
+            return;
+        }
+        for(var k in hostnames){
+            this.addHost(hostnames[k]);
+        }
+    };
+
+    /**
      * Adds multiple service components to the node.
      * @param {Component[]} comps list of components
      */
