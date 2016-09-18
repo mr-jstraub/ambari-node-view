@@ -84,3 +84,66 @@ angular.module('mNodeView', ['mBuild'])
          };
          */
     }]);
+
+/**
+ * Edit Node - Controller
+ **/
+angular.module('mNodeView')
+    .controller('EditNodeController', ['$scope', 'DefEnvironment', 'MainCluster', function ($scope, DefEnvironment, MainCluster) {
+        /* {Nodes[]} List of available nodes */
+        $scope.nodes = MainCluster.nodes;
+        /* {Component[]} kust of components */
+        $scope.comps = DefEnvironment.comps;
+        /* {Node} The selected node */
+        $scope.node = null;
+        /* {Component} The selected component */
+        $scope.comp = null;
+        /* {boolean} True if form is invalid */
+        $scope.isFormValid = true;
+
+        /**
+         * Adds the selected component to the selected node
+         **/
+        $scope.addToNode = function () {
+            if (!$scope.node || !$scope.comp || !$scope.node.addComponent($scope.comp)) {
+                $scope.isFormValid = false;
+                return;
+            }
+            $scope.isFormValid = true;
+        };
+
+        $scope.formChange = function () {
+            $scope.isFormValid = true;
+        };
+    }]);
+
+/**
+ * Edit Enivornment Controller
+ **/
+angular.module('mNodeView')
+    .controller('EditEnvController', ['$scope', 'DefEnvironment', function ($scope, DefEnvironment) {
+        /* {Service[]} List of services */
+        $scope.services = DefEnvironment.services;
+        /* {Component[]} List of components */
+        $scope.comps = DefEnvironment.comps;
+        /* {Service} current service being edited */
+        $scope.editServiceObj = null;
+        /* {Component} current component being edited */
+        $scope.editCompObj = null;
+
+        $scope.editService = function (id) {
+            var service = DefEnvironment.getServiceById(id);
+
+            if (service) {
+                $scope.editServiceObj = service;
+            }
+        };
+        $scope.editComp = function (id) {
+            var comp = DefEnvironment.getComponentById(id);
+
+            if (comp) {
+                $scope.editCompObj = comp;
+            }
+        };
+
+    }]);

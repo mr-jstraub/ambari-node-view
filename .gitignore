@@ -4,4 +4,6 @@ _local*
 /tmp/
 *.log
 /node_modules/
-bcomps/
+/bcomps/
+/dist/
+/assets/vendor

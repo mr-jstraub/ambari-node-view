@@ -7,15 +7,15 @@
  * Author: Jonas Straub 
  */
 
-var app = angular.module('nodeviewApp', ['mImportExport', 'mBuild', 'mBlueprint', 'mNodeView', 'ngRoute', 'dndLists', 'xeditable', 'ui.bootstrap']);
+angular.module('nodeviewApp', ['mNodeView', 'mImportExport', 'mBuild', 'mBlueprint', 'ngRoute', 'dndLists', 'xeditable', 'ui.bootstrap']);
 
-app.run(function(editableOptions, editableThemes) {
+angular.module('nodeviewApp').run(function(editableOptions, editableThemes) {
   editableThemes.bs3.inputClass = 'input-sm';
   editableThemes.bs3.buttonsClass = 'btn-xs';
   editableOptions.theme = 'bs3';
 });
 
-app.config(function($routeProvider) {
+angular.module('nodeviewApp').config(function($routeProvider) {
     $routeProvider
     .when('/', {
         templateUrl: 'app/mods/nodeview/node_view.html',
@@ -62,7 +62,7 @@ app.config(function($routeProvider) {
 /**
  * Main Controller
  **/
-app.controller('MainController', ['$scope', '$route', '$routeParams', '$location', function($scope, $route, $routeParams, $location){
+angular.module('nodeviewApp').controller('MainController', ['$scope', '$route', '$routeParams', '$location', function($scope, $route, $routeParams, $location){
     // routing
     $scope.$route = $route;
     $scope.$location = $location;
@@ -70,11 +70,5 @@ app.controller('MainController', ['$scope', '$route', '$routeParams', '$location
     // config
     $scope.config = {'useFullnames': true};
 }]);
-
-
-
-
-
-
 
 
