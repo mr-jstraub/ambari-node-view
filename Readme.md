@@ -42,8 +42,9 @@ See [screens](https://github.com/mr-jstraub/ambari_node_view/tree/master/screens
 ![Service Overview](/_screens/cluster_service_overview.png?raw=true)
 
 #Installation
-Install bower packages
+Install grunt and bower packages
 ```
+npm install
 grunt install-deps
 ```
 
