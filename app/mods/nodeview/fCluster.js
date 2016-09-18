@@ -82,7 +82,7 @@ angular.module('mNodeView').factory('Cluster', ['Config', 'Node', 'DefEnvironmen
 
     /**
      * Import given cluster. Cluster has to be
-     * exporter by the Python-Exporter.
+     * exported by the Python-Exporter or in the Ambari Blueprint format.
      * @param {String} clusterImportData Exported cluster info as strinigfied json
      * @returns True if successful, false otherwise
      **/
@@ -110,6 +110,12 @@ angular.module('mNodeView').factory('Cluster', ['Config', 'Node', 'DefEnvironmen
         if(!clusterJson) {
             console.warn('Imported cluster seems to be empty or in wrong format');
             return false;
+        }
+
+        //in case this is a blueprint import use blueprint importer
+        if('Blueprints' in clusterJson){
+            this.importBlueprintCluster(clusterJson);
+            return;
         }
 
         // reset cluster data
@@ -194,6 +200,92 @@ angular.module('mNodeView').factory('Cluster', ['Config', 'Node', 'DefEnvironmen
         this.config = configs;
         this.configItems = configItems;
 
+        console.info('Cluster imported');
+    };
+
+    /**
+     * Import given cluster with an Ambari Blueprint.
+     * @param {Json} clusterJson json blueprint
+     * @returns True if successful, false otherwise
+     **/
+    Cluster.prototype.importBlueprintCluster = function(clusterJson){
+        console.debug('Trying to import cluster with Ambari Blueprint');
+
+        if(!clusterJson) {
+            console.warn('Imported cluster seems to be empty or in wrong format');
+            return false;
+        }
+
+        // reset cluster data
+        this.reset();
+
+        // set  new cluster info
+        this.name = 'Big Data';
+        this.security = 'None';
+        this.version = (clusterJson['Blueprints']['stack_name'] && clusterJson['Blueprints']['stack_version']) ? clusterJson['Blueprints']['stack_name'] + '-' + clusterJson['Blueprints']['stack_version'] : '';
+
+        /* Array with checksum objects {idx: Index in node array, chksum: calc. Checksum}*/
+        var chksums = [];
+
+        // add nodes to cluster
+        for(var key in clusterJson.host_groups){
+            var nodeData = clusterJson.host_groups[key];
+            var nodeIdx = null;
+            var nodeComps = [];
+            var nodeChksum = "";
+            var nodeCount = parseInt(nodeData['cardinality']);
+            var nodeHostname = (nodeData['name']) ? nodeData['name'] : 'node' + key;
+            var nodeHosts = [];
+
+            //validate node count
+            if(isNaN(nodeCount) || nodeCount <= 0){
+                nodeCount = 1;
+            }
+
+            // prepare hosts
+            for(var i=1; i<=nodeCount; i++){
+                nodeHosts.push(nodeHostname + '-' + i);
+            }
+
+            // prepare components
+            for(var compKey in nodeData['components']){
+                var compId = nodeData['components'][compKey];
+                if(!compId['name']) continue;
+
+                // search component object
+                var comp = DefEnvironment.getComponentById(compId['name'].toLowerCase());
+                if(comp instanceof Component){
+                    nodeComps.push(comp);
+                }
+            }
+
+            // calc checksum
+            nodeChksum = this.calcNodeChksum(nodeComps, '');
+
+            // check whether calc. checksum is already available
+            var isNodeDuplicate = false;
+            for(var ck in chksums){
+                if(chksums[ck]['chksum'] == nodeChksum){
+                    nodeIdx = chksums[ck]['idx'];
+                    isNodeDuplicate = true;
+                    break;
+                }
+            }
+
+            // node type is not av.=> add new node
+            if(!isNodeDuplicate){
+                nodeIdx = this.addNode(nodeHosts, nodeComps, '');
+                if(nodeIdx < 0){
+                    console.warn('Error creating new node');
+                    continue;
+                }
+
+                // save chksum
+                chksums.push({'idx': nodeIdx, 'chksum': nodeChksum});
+            }else {
+                this.nodes[nodeIdx].addHosts(nodeHosts);
+            }
+        }
         console.info('Cluster imported');
     };
 

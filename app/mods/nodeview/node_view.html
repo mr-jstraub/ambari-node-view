@@ -22,6 +22,7 @@
                         <div class="box-footer">
                             <span>{{node.getHostname()}}</span>
                             <span class="cardinality">(#{{node.getCardinality()}})</span>
+                            <span class="zone-title" ng-show="node.zone && !config.showZones">- {{node.zone}}</span>
                         </div>
                     </div>
                 </div>
@@ -39,6 +40,7 @@
                         <div class="box-header classic">
                             <span>{{node.getHostname()}}</span>
                             <span class="cardinality">(#{{node.getCardinality()}})</span>
+                            <span class="zone-title" ng-show="node.zone && !config.showZones">- {{node.zone}}</span>
                         </div>
                         <div class="box-main">
                             <span ng-repeat="comp in node.comps | orderBy:'service.group_a'">
@@ -69,7 +71,8 @@
                         </div>
                         <div class="box-footer">
                             <span>{{node.getHostname()}}</span>
-                            <span class="cardinality">(#{{node.getCardinality()}}) - {{node.zone}}</span>
+                            <span class="cardinality">(#{{node.getCardinality()}})</span>
+                            <span class="zone-title" ng-show="node.zone && !config.showZones">- {{node.zone}}</span>
                         </div>
                     </div>
                 </div>
@@ -88,6 +91,7 @@
                         <div class="box-header classic">
                             <span>{{node.getHostname()}}</span>
                             <span class="cardinality">(#{{node.getCardinality()}})</span>
+                            <span class="zone-title" ng-show="node.zone && !config.showZones">- {{node.zone}}</span>
                         </div>
                         <div class="box-main">
                             <span ng-repeat="service in services = node.getNodeServices()">
@@ -110,7 +114,9 @@
                             <span ng-repeat="hostname in node.hostnames">
                                 {{hostname}}
                             </span>
-                            <i>{{node.comps.length}} components</i></td>
+                            <i>{{node.comps.length}} components</i>
+                            <span class="zone-title" ng-show="node.zone">Zone: {{node.zone}}</span>
+                        </td>
                         <td><span ng-repeat="comp in node.comps | orderBy:'service.group_a'">{{comp.name}}</span></td>
                         <td><span ng-repeat="service in node.getNodeServices()">{{service.name}}</span></td>
                     </tr>
